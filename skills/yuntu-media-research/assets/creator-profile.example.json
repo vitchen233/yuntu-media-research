@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "creator_name": "你的称呼",
+  "creator_role": "你的身份或内容背景",
+  "creator_niche": "AI提效自媒体",
+  "platforms": [
+    "抖音",
+    "小红书"
+  ],
+  "target_audience": "正在学习AI、希望完成具体内容任务的个人创作者",
+  "audience_problems": [
+    "每天找选题耗时",
+    "收藏很多对标但不知道怎样借鉴"
+  ],
+  "content_goals": [
+    "涨粉",
+    "让观众领取并使用开源Skill"
+  ],
+  "preferred_tools": [
+    "Codex",
+    "WorkBuddy"
+  ],
+  "delivery_assets": [
+    "GitHub开源项目",
+    "教程文档"
+  ],
+  "content_boundaries": [
+    "不承诺未经验证的播放量或涨粉结果"
+  ],
+  "notes": "本档案只保存长期稳定信息；单期选题变化在任务中单独说明。"
+}

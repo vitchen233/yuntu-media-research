@@ -9,11 +9,12 @@
 执行任务前按顺序判断：
 
 1. 第一次运行`scripts/doctor.py --json`，只读取配置状态，不输出密钥。
-2. 当前会话是否已有RedFox MCP工具；有则优先使用，工具名不强制为某个宿主前缀。
-3. 没有MCP时，能否运行`redfox_catalog.py status`；能则使用SDK。
-4. 当前是否有浏览器能力；有则用于寻找或核对具体单条。
-5. 没有浏览器时仍可完成RedFox批量分析，但报告必须标记“单条页面未人工核对”。
-6. 只有RedFox密钥和浏览器都不可用时，才向用户说明缺少哪项能力；不要要求用户代为整理整批数据。
+2. 读取用户级创作者档案；当前任务明确输入覆盖档案，档案覆盖默认值。缺失最低字段时按`references/first-run.md`引导。
+3. 当前会话是否已有RedFox MCP工具；有则优先使用，工具名不强制为某个宿主前缀。
+4. 没有MCP时，能否运行`redfox_catalog.py status`；能则使用SDK。
+5. 当前是否有浏览器能力；有则用于寻找或核对具体单条。
+6. 没有浏览器时仍可完成RedFox批量分析，但报告必须标记“单条页面未人工核对”。
+7. 只有RedFox密钥和浏览器都不可用时，才向用户说明缺少哪项能力；不要要求用户代为整理整批数据。
 
 ## 通用调用提示词
 
@@ -59,12 +60,23 @@
 明确哪些结构可复用、哪些依赖作者人格或未经验证承诺；最后给出当前创作者自己的改写方向，不复制原句。
 ```
 
+## 从研究结果生成初稿
+
+```text
+调用 yuntu-media-research，运行 draft-from-research。
+选中题：{{已确认候选题}}。
+只读取当前研究任务保存的来源清单、报告、代表作品和真实交付物状态。
+先核对开头准备展示的结果是否真实存在，再生成任务型短视频初稿、来源映射和事实审计。
+不要复制对标原句、作者人格或未经验证的效率与流量承诺，不写视频包装。
+```
+
 ## 输出选择
 
 - `topic-research`使用`assets/topic-research-report.md`。
 - `creator-analysis`使用`assets/creator-analysis-report.md`。
 - `content-structure-analysis`使用`assets/content-structure-analysis-report.md`。
 - 三种模式都先使用`assets/research-brief.md`建立内部简报。
+- `draft-from-research`使用`references/draft-writing.md`和`assets/short-video-draft.md`。
 - 三种模式最终都按`references/html-report-contract.md`生成`report.json`与独立`report.html`。
 
 模板用于保证不漏关键结果，不要求空着的章节硬填内容。没有证据的字段直接删除或标记未核对。

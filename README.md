@@ -1,8 +1,8 @@
 # 云途自媒体研究 Skill
 
-当前版本：`1.0.0`
+当前版本：`1.1.0`
 
-用RedFoxHub实时/广域库、优质库和可用浏览器自动采集公开内容，生成选题调研、账号分析和单条内容结构拆解三种独立HTML报告。
+用RedFoxHub实时/广域库、优质库和可用浏览器自动采集公开内容，生成选题调研、账号分析和单条内容结构拆解三种独立HTML报告，并在选题确认后生成有来源的短视频初稿。
 
 ## 解决什么
 
@@ -107,7 +107,7 @@ $env:REDFOX_API_KEY="YOUR_API_KEY"
 第一次使用 yuntu-media-research，请帮我完成配置检查。
 ```
 
-Agent会运行`doctor.py`并逐步引导，不会要求你在聊天里粘贴API Key。也可以自己运行：
+Agent会先检查技术配置，再引导建立创作者研究档案，不会要求你在聊天里粘贴API Key。也可以自己运行：
 
 ```bash
 # 在仓库根目录
@@ -117,6 +117,32 @@ python3 skills/yuntu-media-research/scripts/doctor.py --json
 python3 scripts/doctor.py --json
 ```
 
+### 建立创作者研究档案
+
+技术配置只决定“能不能采集”，创作者档案决定“替谁研究、哪些题适合”。运行：
+
+```bash
+# 在仓库根目录
+python3 skills/yuntu-media-research/scripts/configure_profile.py
+
+# 已进入安装后的Skill目录
+python3 scripts/configure_profile.py
+```
+
+脚本会询问你的身份、赛道、平台、目标受众、受众问题、内容目标、优先工具、交付物和边界。最低必填项是赛道、目标受众和平台。默认保存到：
+
+- macOS / Linux：`~/.config/yuntu-media-research/creator-profile.json`
+- Windows：`%APPDATA%\yuntu-media-research\creator-profile.json`
+
+也可以修改`skills/yuntu-media-research/assets/creator-profile.example.json`后导入：
+
+```bash
+python3 skills/yuntu-media-research/scripts/configure_profile.py \
+  --input skills/yuntu-media-research/assets/creator-profile.example.json
+```
+
+研究参数优先级为：本次任务明确输入 > 已保存档案 > Skill默认值。档案不会写入公开仓库；单期热点和临时标题也不会自动污染长期信息。
+
 需要查看内置提示词时，对Agent说：
 
 ```text
@@ -124,6 +150,14 @@ python3 scripts/doctor.py --json
 ```
 
 完整模板位于`skills/yuntu-media-research/references/prompt-library.md`，包含首次配置、近3天选题、博主分析、单条拆解、三报告演示和跨宿主对比。
+
+研究完成并选中题目后，可以继续说：
+
+```text
+调用 yuntu-media-research，运行 draft-from-research。请根据刚才的真实研究结果生成短视频初稿、来源映射和事实审计。
+```
+
+初稿不会绕过研究直接编造近期事实，也不会复制对标作者的原句、人格或未经验证的效果承诺。
 
 ### 命令行自检
 

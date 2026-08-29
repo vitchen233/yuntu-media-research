@@ -10,7 +10,9 @@
 
 ## brief.json
 
-必填：`task_id`、`creator_niche`、`target_audience`、`platforms`、`time_window`、`goal`、`delivery_asset`、`material_input_mode`、`queries`、`started_at`、`sample_plan`、`stop_conditions`。
+必填：`task_id`、`creator_niche`、`target_audience`、`platforms`、`time_window`、`goal`、`delivery_asset`、`material_input_mode`、`profile_source`、`queries`、`started_at`、`sample_plan`、`stop_conditions`。
+
+`profile_source`使用`task-explicit`、`saved-profile`或`skill-default`。任务目录可以保存`profile_snapshot.json`用于复现，但只保留本次研究实际使用的非敏感字段，不复制无关私人说明。
 
 ## source_manifest.jsonl
 

@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.1.0 - 2026-08-30
+
+- Added a user-level creator research profile for niche, audience, platforms, goals, tools, delivery assets and content boundaries.
+- Added interactive profile setup and a reusable JSON template.
+- Extended first-run diagnostics to distinguish technical readiness from personalized research readiness.
+- Defined deterministic precedence: explicit task input, saved creator profile, then Skill defaults.
+- Added `draft-from-research` for research-grounded short-video drafts, source maps and claim audits.
+- Added a task-first draft method built around visible results, automatic material collection, progressive actions, evidence and human takeover.
+
 ## 1.0.0 - 2026-08-30
 
 - 按云途真实内容流程独立重构。

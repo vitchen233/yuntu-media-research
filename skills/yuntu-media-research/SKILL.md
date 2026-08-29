@@ -5,7 +5,7 @@ description: 使用RedFox实时与优质数据、可用浏览器完成选题调�
 
 # 云途自媒体研究
 
-把“今天讲什么、这个博主为什么有效、这条内容是怎样抓住人的”推进成可拍、可展示的调研结果。RedFoxHub广域库负责近3天实时发现，优质库负责账号基线与历史详情；优先使用宿主已连接的RedFox MCP，否则使用官方Python SDK。浏览器负责核对具体单条，评论只在页面自然可见且当前任务确有需要时顺手查看。
+把“今天讲什么、这个博主为什么有效、这条内容是怎样抓住人的”推进成可拍、可展示的调研结果，并在用户选题后生成有来源的短视频初稿。RedFoxHub广域库负责近3天实时发现，优质库负责账号基线与历史详情；优先使用宿主已连接的RedFox MCP，否则使用官方Python SDK。浏览器负责核对具体单条，评论只在页面自然可见且当前任务确有需要时顺手查看。
 
 ## 核心边界
 
@@ -30,13 +30,17 @@ description: 使用RedFox实时与优质数据、可用浏览器完成选题调�
 - `delivery_asset`：Skill、源码、模板、报告或文档
 - `material_input_mode`：默认 `ai-collected`
 
+首次个性化使用时，从用户级`creator-profile.json`读取长期稳定信息。参数优先级为：当前任务明确输入最高，其次是已保存档案，最后才使用Skill默认值。不要把单期热点、临时标题或一次性工具偏好写回长期档案。
+
 除非缺失信息会显著改变研究方向，否则直接执行。不要要求用户先提供“20条资料”或“100条评论”。
 
 ## 工作流
 
 ### -1. 首次运行与自动引导
 
-用户第一次调用、主动要求配置或发生认证/依赖错误时，读取`references/first-run.md`，运行`scripts/doctor.py --json`并按`next_action`逐步引导。不要让用户在聊天里粘贴API Key。
+用户第一次调用、主动要求配置或发生认证/依赖错误时，读取`references/first-run.md`，运行`scripts/doctor.py --json`并按`next_action`逐步引导。技术配置通过后继续检查创作者研究档案；不要让用户在聊天里粘贴API Key。
+
+每次建立研究简报前读取`scripts/creator_profile.py`返回的用户级档案。个性化选题调研至少需要`creator_niche`、`target_audience`和`platforms`；若当前任务已经明确给出这三项，可以先执行并询问是否保存为长期默认。档案缺失不能被模型自行猜测。
 
 用户要求使用示例、复制提示词或不知道怎么开始时，读取`references/prompt-library.md`，只推荐与当前任务匹配的模板。
 
@@ -45,14 +49,15 @@ description: 使用RedFox实时与优质数据、可用浏览器完成选题调�
 - `topic-research`：浏览器寻找具体单条并核对页面，RedFox补批量作品和互动数据，输出可拍选题。
 - `creator-analysis`：RedFox采集博主主页、近期作品和账号内相对表现，输出内容结构、代表作品和可借鉴方向；不要求评论。
 - `content-structure-analysis`：读取一条确定作品的页面、详情或转写，拆解开头、推进顺序、证明方式、画面任务和可复用结构。
+- `draft-from-research`：用户选中候选后，只根据当前任务的来源、报告和真实交付物生成可追溯短视频初稿；不得绕过研究直接写近期热点。
 
-默认只选一个模式。需要演示完整链路时可以按`topic-research → creator-analysis → content-structure-analysis`依次运行，前一步的选中对象必须成为下一步输入。
+默认只选一个研究模式。需要演示完整链路时可以按`topic-research → creator-analysis → content-structure-analysis`依次运行，前一步的选中对象必须成为下一步输入。`draft-from-research`是研究后的下游动作，只有用户确认选题后才能运行。
 
 随后读取`references/agent-workflows.md`，执行宿主能力检查并选择对应提示词。内部简报使用`assets/research-brief.md`，最终结果使用对应报告模板。
 
 ### 1. 建立简报
 
-创建 `research-output/<task>/brief.json`，包含任务、受众、平台、时间窗、查询词、样本计划、预计调用数、预算边界和停止条件。字段见 `references/output-contract.md`。
+创建 `research-output/<task>/brief.json`，包含任务、受众、平台、时间窗、查询词、样本计划、预计调用数、预算边界和停止条件。记录`profile_source`，并把本次实际使用的非敏感档案字段保存为`profile_snapshot.json`，便于复现实验；不要复制无关私人说明。字段见 `references/output-contract.md`。
 
 ### 2. 发现RedFox能力并规划采集
 
@@ -154,7 +159,15 @@ python3 scripts/render_report.py --input report.json --output report.html
 
 ### 8. 用户确认后形成初稿
 
-生成 `selected_topic.md`、`benchmark_report.md`、`draft.md` 和 `audit.md`。初稿里的近期事实、指标和第三方行为使用 `[Sxxx]`；个人实测、计算和推断分别用 `[Practice]`、`[Calculated]`、`[Inference]`。
+读取`references/draft-writing.md`与`assets/short-video-draft.md`，生成`selected_topic.md`、`draft.md`、`draft_source_map.json`和`audit.md`。初稿采用完成态前置、具体摩擦、原料自动取得、连续动作升级、逐段证明、人机边界和交付结算；这是一套任务型短教学候选结构，不强制用于所有内容。
+
+近期事实、指标和第三方行为在`draft_source_map.json`中映射到`Sxxx`；个人实测、计算和推断分别映射到`Practice`、`Calculated`、`Inference`。口播正文不朗读来源标签。不得出现外部作者姓名、复制其原句或把相关性包装成因果。
+
+生成后运行：
+
+```bash
+python3 scripts/validate_draft.py research-output/<task>
+```
 
 ### 9. 验收
 
@@ -191,5 +204,9 @@ python3 scripts/validate_output.py research-output/<task>
 - 跨平台字段统一：`scripts/normalize.py`
 - 相关性过滤：`scripts/filter_relevance.py`
 - 密钥配置：`scripts/configure_key.py`
+- 创作者档案：`scripts/configure_profile.py`
 - 候选排序：`scripts/rank_topics.py`
 - 输出校验：`scripts/validate_output.py`
+- 初稿方法：`references/draft-writing.md`
+- 初稿模板：`assets/short-video-draft.md`
+- 初稿校验：`scripts/validate_draft.py`

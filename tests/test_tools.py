@@ -22,6 +22,8 @@ def load_script(name):
 
 collector = load_script("redfox_collect.py")
 configure_key = load_script("configure_key.py")
+configure_profile = load_script("configure_profile.py")
+creator_profile = load_script("creator_profile.py")
 ranking = load_script("rank_topics.py")
 validator = load_script("validate_output.py")
 renderer = load_script("render_report.py")
@@ -31,6 +33,7 @@ redfox_catalog = load_script("redfox_catalog.py")
 redfox_mcp = load_script("redfox_mcp.py")
 estimate_cost = load_script("estimate_cost.py")
 doctor = load_script("doctor.py")
+draft_validator = load_script("validate_draft.py")
 
 INSTALL_SPEC = importlib.util.spec_from_file_location("installer", ROOT / "install.py")
 installer = importlib.util.module_from_spec(INSTALL_SPEC)
@@ -264,6 +267,50 @@ class TestDistribution(unittest.TestCase):
             result = doctor.diagnose()
         self.assertTrue(result["redfox_api_key_configured"])
         self.assertNotIn(secret, json.dumps(result))
+
+    def test_creator_profile_round_trip_and_task_override(self):
+        with tempfile.TemporaryDirectory() as temp:
+            path = pathlib.Path(temp) / "creator-profile.json"
+            profile = configure_profile.write_profile(path, {
+                "creator_niche": "AI自媒体",
+                "target_audience": "个人创作者",
+                "platforms": ["抖音"],
+                "content_goals": ["涨粉"],
+            })
+            loaded = creator_profile.load_profile(profile)
+            merged = creator_profile.merge_profile(loaded, {"target_audience": "刚开始学AI的创作者"})
+            self.assertTrue(creator_profile.profile_is_complete(loaded))
+            self.assertEqual(merged["creator_niche"], "AI自媒体")
+            self.assertEqual(merged["target_audience"], "刚开始学AI的创作者")
+
+    def test_doctor_routes_to_creator_profile_after_technical_setup(self):
+        with mock.patch.object(doctor, "has_api_key", return_value=True), mock.patch.object(doctor, "package_version", return_value="0.3.0"), mock.patch.object(doctor, "load_profile", return_value=None):
+            result = doctor.diagnose()
+        self.assertTrue(result["technical_ready"])
+        self.assertFalse(result["ready"])
+        self.assertEqual(result["next_action"], "configure-creator-profile")
+
+
+class TestDraftValidation(unittest.TestCase):
+    def test_valid_grounded_draft_bundle(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = pathlib.Path(temp)
+            for name in ("selected_topic.md", "draft.md", "audit.md"):
+                (root / name).write_text("真实内容\n", encoding="utf-8")
+            source_map = {"claims": [{"claim": "近期出现相关作品", "basis": ["S001"]}]}
+            (root / "draft_source_map.json").write_text(json.dumps(source_map), encoding="utf-8")
+            self.assertEqual(draft_validator.validate(root), [])
+
+    def test_draft_bundle_rejects_placeholder_and_empty_map(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = pathlib.Path(temp)
+            for name in ("selected_topic.md", "audit.md"):
+                (root / name).write_text("真实内容\n", encoding="utf-8")
+            (root / "draft.md").write_text("TODO\n", encoding="utf-8")
+            (root / "draft_source_map.json").write_text('{"claims": []}', encoding="utf-8")
+            errors = draft_validator.validate(root)
+            self.assertTrue(any("placeholder" in error for error in errors))
+            self.assertTrue(any("no claims" in error for error in errors))
 
 
 if __name__ == "__main__":
