@@ -22,7 +22,7 @@
 
 ## audience_questions.jsonl
 
-必填：`question_id`、`source_id`、`text`、`source_kind`、`collected_at`。不得把分析者总结改写成观众原话。
+可选。只有当前任务确实查看了页面评论、搜索问题或其他观众原话时创建。每行包含：`question_id`、`source_id`、`text`、`source_kind`、`collected_at`。不得把分析者总结改写成观众原话。
 
 ## topic_cards.jsonl
 

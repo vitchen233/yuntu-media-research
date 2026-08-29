@@ -6,12 +6,12 @@
 
 ## 解决什么
 
-很多“AI做自媒体”流程仍要求用户先准备链接、评论或CSV。本Skill默认从赛道、人群和任务出发，用RedFox获得结构化作品数据，再由Agent抽查真实页面、补观众问题并形成内容项目。
+很多“AI做自媒体”流程仍要求用户先准备链接或CSV。本Skill从赛道、博主或热点任务出发：RedFox负责批量作品、账号和榜单数据，Agent浏览器负责寻找并核对具体单条，最终形成可演示的选题、博主或热点调研结果。
 
 ## 核心输出
 
 - 原始RedFox响应与公开来源清单
-- 作品、互动指标和观众问题样本
+- 作品、账号、互动指标和浏览器抽查记录
 - 关键词相关性过滤与被排除样本
 - 对标结构与不可复制边界
 - 带实拍任务、结果画面、对标链接和交付钩子的候选选题
@@ -73,7 +73,7 @@ python3 skills/yuntu-media-research/scripts/redfox_collect.py collect \
 
 `plan`不会产生付费调用；只有带 `--execute` 的 `collect` 才会请求RedFox。
 
-当前v1.0采用MCP/SDK双通道：MCP适合宿主Agent原生工具调用，SDK提供更广的平台操作目录。调用前使用`estimate_cost.py`估价，调用后用`normalize.py`统一作品、账号和评论字段。无法从官方说明识别价格时会保留`unknown`，不会猜测。
+当前v1.0采用MCP/SDK双通道：MCP适合宿主Agent原生工具调用，SDK提供更广的平台操作目录。调用前使用`estimate_cost.py`估价，调用后用`normalize.py`统一作品和账号字段。无法从官方说明识别价格时会保留`unknown`，不会猜测。
 
 关键词搜索可能混入同名或偶然命中内容。`required_any_groups`要求每组至少命中一个词，原始采集与过滤结果会同时保留，便于审计。
 

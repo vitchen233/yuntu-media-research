@@ -145,7 +145,6 @@ class TestValidation(unittest.TestCase):
             source = {"source_id": "S001", "url": "https://example.com/post"}
             (root / "source_manifest.jsonl").write_text(json.dumps(source) + "\n", encoding="utf-8")
             (root / "works.jsonl").write_text(json.dumps({"source_id": "S001"}) + "\n", encoding="utf-8")
-            (root / "audience_questions.jsonl").write_text(json.dumps({"source_id": "S001"}) + "\n", encoding="utf-8")
             card = {field: "x" for field in validator.TOPIC_FIELDS}
             card.update({"source_ids": ["S001"], "benchmark_urls": ["https://example.com/post"]})
             (root / "topic_cards.jsonl").write_text(json.dumps(card) + "\n", encoding="utf-8")

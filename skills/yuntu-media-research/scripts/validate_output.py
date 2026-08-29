@@ -6,7 +6,7 @@ import json
 from pathlib import Path
 from urllib.parse import urlparse
 
-REQUIRED_FILES = ["brief.json", "source_manifest.jsonl", "works.jsonl", "audience_questions.jsonl", "topic_cards.jsonl"]
+REQUIRED_FILES = ["brief.json", "source_manifest.jsonl", "works.jsonl", "topic_cards.jsonl"]
 TOPIC_FIELDS = ["topic_id", "title", "target_audience", "audience_task", "visible_result", "shooting_task", "source_ids", "benchmark_urls", "tailwind_mode", "difference", "opening_direction", "delivery_asset", "material_acquisition", "readiness"]
 
 
@@ -31,7 +31,10 @@ def validate(root):
         source_ids.add(source_id)
         if not valid_url(row.get("url")):
             errors.append(f"source_manifest.jsonl:{line}: invalid url")
-    for filename in ("works.jsonl", "audience_questions.jsonl"):
+    linked_files = ["works.jsonl"]
+    if (root / "audience_questions.jsonl").is_file():
+        linked_files.append("audience_questions.jsonl")
+    for filename in linked_files:
         for line, row in rows(root / filename):
             if row.get("source_id") not in source_ids:
                 errors.append(f"{filename}:{line}: unknown source_id")
