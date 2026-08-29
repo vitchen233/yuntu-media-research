@@ -19,12 +19,18 @@
 python3 "<skill根目录>/scripts/doctor.py" --json
 ```
 
+首次初始化固定使用以下顺序：
+
+```text
+步骤1：创作者问卷 → 步骤2：RedFox配置 → 开始使用
+```
+
 根据`next_action`处理：
 
 - `ready`：告知用户技术和创作者档案均已就绪，列出选题、账号、单条三种任务，让用户直接说目标。
-- `configure-api-key`：不让用户把Key发到聊天。指导其在本地终端运行`python3 "<skill根目录>/scripts/configure_key.py"`，输入完成后重新运行`doctor.py`。
+- `configure-creator-profile`：先在聊天中展示下面的简短问卷。用户回答后，将答案整理为JSON临时文件，运行`python3 "<skill根目录>/scripts/configure_profile.py" --input "<临时JSON路径>"`写入用户级档案，然后删除临时文件并重新运行`doctor.py`。若宿主不能安全创建临时文件，再引导用户直接运行交互式`configure_profile.py`。不要要求用户手工寻找配置目录。
+- `configure-api-key`：说明现在进入第2步RedFox配置。不让用户把Key发到聊天。指导其在本地终端运行`python3 "<skill根目录>/scripts/configure_key.py"`，输入完成后重新运行`doctor.py`。
 - `install-redfox-sdk`：指导运行`python3 -m pip install "redfox-python-sdk>=0.3.0,<1"`，然后重新检查。
-- `configure-creator-profile`：说明技术配置已经通过，但缺少个性化研究上下文。优先引导运行`python3 "<skill根目录>/scripts/configure_profile.py"`并回答简短问题；也可以复制`assets/creator-profile.example.json`修改后用`--input`导入。完成后重新运行`doctor.py`。
 
 默认密钥位置：
 
@@ -32,6 +38,28 @@ python3 "<skill根目录>/scripts/doctor.py" --json
 - Windows：`%APPDATA%\yuntu-media-research\.env`
 
 也支持环境变量`REDFOX_API_KEY`和自定义`YUNTU_MEDIA_RESEARCH_ENV`。检查结果只输出是否已配置，绝不输出Key内容。
+
+## 步骤1：创作者问卷
+
+Agent首次调用时一次询问以下6组问题，允许用户按编号回答：
+
+```text
+为了让后面的选题和报告真正适合你，请先回答6组初始化问题：
+1. 我应该怎样称呼你？你的身份或内容背景是什么？
+2. 你主要做什么赛道？
+3. 你主要发布在哪些平台？
+4. 你的核心目标受众是谁？他们最想解决什么具体问题？
+5. 你当前做内容最重要的目标是什么？通常准备交付什么资料、Skill、源码或服务？
+6. 你优先使用或讲解哪些工具？有哪些不想讲、不能讲或不希望作出的承诺？
+```
+
+第2、3、4题是最低必填项；其他题可以回答“暂不设置”。用户回答后先用一小段摘要复述，明显歧义才追问一次，不把初始化变成长访谈。用户确认无误后保存档案并进入RedFox配置。
+
+这些信息不是密钥，但仍只用于当前用户的研究上下文。不要提交到Skill仓库，也不要在公开视频、公开报告或分享包中自动展示姓名与私人说明。
+
+## 步骤2：RedFox配置
+
+先检查SDK和API Key。安装命令已经使用`--with-deps`时通常只需配置Key。Key必须由用户在本机隐藏输入，不能通过聊天、截图、临时JSON或创作者档案传递。
 
 ## 创作者研究档案
 

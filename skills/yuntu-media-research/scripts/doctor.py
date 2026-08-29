@@ -54,12 +54,12 @@ def diagnose():
         "git_available": bool(shutil.which("git")),
     }
     result["next_action"] = (
-        "configure-api-key"
+        "configure-creator-profile"
+        if not profile_complete
+        else "configure-api-key"
         if not result["redfox_api_key_configured"]
         else "install-redfox-sdk"
         if not sdk_version
-        else "configure-creator-profile"
-        if not profile_complete
         else "ready"
     )
     return result

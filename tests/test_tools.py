@@ -283,12 +283,19 @@ class TestDistribution(unittest.TestCase):
             self.assertEqual(merged["creator_niche"], "AI自媒体")
             self.assertEqual(merged["target_audience"], "刚开始学AI的创作者")
 
-    def test_doctor_routes_to_creator_profile_after_technical_setup(self):
-        with mock.patch.object(doctor, "has_api_key", return_value=True), mock.patch.object(doctor, "package_version", return_value="0.3.0"), mock.patch.object(doctor, "load_profile", return_value=None):
+    def test_doctor_routes_to_creator_profile_before_technical_setup(self):
+        with mock.patch.object(doctor, "has_api_key", return_value=False), mock.patch.object(doctor, "package_version", return_value=None), mock.patch.object(doctor, "load_profile", return_value=None):
             result = doctor.diagnose()
-        self.assertTrue(result["technical_ready"])
+        self.assertFalse(result["technical_ready"])
         self.assertFalse(result["ready"])
         self.assertEqual(result["next_action"], "configure-creator-profile")
+
+    def test_doctor_routes_to_redfox_after_profile(self):
+        profile = {"creator_niche": "AI", "target_audience": "创作者", "platforms": ["抖音"]}
+        with mock.patch.object(doctor, "has_api_key", return_value=False), mock.patch.object(doctor, "package_version", return_value=None), mock.patch.object(doctor, "load_profile", return_value=profile):
+            result = doctor.diagnose()
+        self.assertTrue(result["personalized_research_ready"])
+        self.assertEqual(result["next_action"], "configure-api-key")
 
 
 class TestDraftValidation(unittest.TestCase):

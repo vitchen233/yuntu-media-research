@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.1.1 - 2026-08-30
+
+- Reordered first-run onboarding into two explicit steps: creator questionnaire first, RedFox configuration second.
+- Added a six-part conversational questionnaire that Agents save into the local creator profile.
+- Clarified that API keys are configured only through hidden local input and never through the questionnaire or chat.
+
 ## 1.1.0 - 2026-08-30
 
 - Added a user-level creator research profile for niche, audience, platforms, goals, tools, delivery assets and content boundaries.

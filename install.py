@@ -48,7 +48,7 @@ def main():
         subprocess.run([sys.executable, "-m", "pip", "install", "-r", str(root / "requirements.txt")], check=True)
     target = install(source, target_root, args.force)
     print(f"Installed yuntu-media-research to {target}")
-    print("Restart or reload your Agent, then say: 第一次使用 yuntu-media-research，请帮我完成配置检查。")
+    print("Restart or reload your Agent, then say: 第一次使用 yuntu-media-research，请开始初始化。")
     return 0
 
 

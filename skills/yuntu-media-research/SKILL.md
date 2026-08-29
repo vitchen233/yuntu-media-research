@@ -38,7 +38,7 @@ description: 使用RedFox实时与优质数据、可用浏览器完成选题调�
 
 ### -1. 首次运行与自动引导
 
-用户第一次调用、主动要求配置或发生认证/依赖错误时，读取`references/first-run.md`，运行`scripts/doctor.py --json`并按`next_action`逐步引导。技术配置通过后继续检查创作者研究档案；不要让用户在聊天里粘贴API Key。
+用户第一次调用、主动要求配置或发生认证/依赖错误时，读取`references/first-run.md`，运行`scripts/doctor.py --json`并按`next_action`逐步引导。首次初始化固定先建立创作者研究档案，再配置RedFox；不要让用户在聊天里粘贴API Key。
 
 每次建立研究简报前读取`scripts/creator_profile.py`返回的用户级档案。个性化选题调研至少需要`creator_niche`、`target_audience`和`platforms`；若当前任务已经明确给出这三项，可以先执行并询问是否保存为长期默认。档案缺失不能被模型自行猜测。
 
