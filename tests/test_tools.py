@@ -252,6 +252,7 @@ class TestDistribution(unittest.TestCase):
             target = installer.install(ROOT / "skills" / "yuntu-media-research", pathlib.Path(temp))
             self.assertTrue((target / "SKILL.md").is_file())
             self.assertTrue((target / "references" / "prompt-library.md").is_file())
+            self.assertTrue((target / "references" / "local-transcription.md").is_file())
             self.assertTrue((target / "scripts" / "doctor.py").is_file())
 
     def test_installer_refuses_implicit_overwrite(self):

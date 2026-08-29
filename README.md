@@ -143,6 +143,18 @@ python3 skills/yuntu-media-research/scripts/configure_profile.py \
 
 研究参数优先级为：本次任务明确输入 > 已保存档案 > Skill默认值。档案不会写入公开仓库；单期热点和临时标题也不会自动污染长期信息。
 
+### 可选本地视频转写
+
+需要拆解一条作品的完整文案时，Skill会先用浏览器核对页面，再检测本机是否已有[FunASR](https://github.com/modelscope/FunASR)。本仓库不捆绑FunASR源码、Python依赖、模型权重或媒体下载器；缺少时，Agent必须先征得同意，再从官方渠道安装或拉取到Skill之外的隔离环境。只有本地方案不可用时，才会核价并询问是否调用RedFox付费转写。
+
+可以直接对Agent说：
+
+```text
+请拆解这条公开视频。先用浏览器核对页面；需要完整文案时检测本机FunASR，缺少时先征得我同意，再从官方渠道安装到Skill之外的隔离环境。只有本地方案不可用时，才询问我是否调用RedFox付费转写。
+```
+
+具体检测、macOS / Linux与Windows安装路径、调用命令和产物清单见`skills/yuntu-media-research/references/local-transcription.md`。
+
 需要查看内置提示词时，对Agent说：
 
 ```text
