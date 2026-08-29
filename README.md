@@ -1,12 +1,12 @@
 # 云途自媒体研究 Skill
 
-当前版本：`1.0.0-dev`
+当前版本：`1.0.0`
 
-用RedFoxHub和可用浏览器自动采集近期公开内容，再生成带来源的尾流选题、对标分析和可追溯初稿。
+用RedFoxHub实时/广域库、优质库和可用浏览器自动采集公开内容，生成选题调研、账号分析和单条内容结构拆解三种独立HTML报告。
 
 ## 解决什么
 
-很多“AI做自媒体”流程仍要求用户先准备链接或CSV。本Skill从赛道、博主或热点任务出发：RedFox负责批量作品、账号和榜单数据，Agent浏览器负责寻找并核对具体单条，最终形成可演示的选题、博主或热点调研结果。
+很多“AI做自媒体”流程仍要求用户先准备链接或CSV。本Skill从赛道、博主或具体作品出发：RedFox广域库负责近3天实时发现，优质库负责账号和历史作品，Agent浏览器负责核对具体单条，最终形成可离线打开、适合录屏的研究结果。
 
 ## 核心输出
 
@@ -17,8 +17,39 @@
 - 带实拍任务、结果画面、对标链接和交付钩子的候选选题
 - 选中题证据包与可追溯初稿
 - 失败、缺失字段与事实待核验清单
+- 三种云途视觉HTML报告和一个本地启动首页
 
-## 安装
+## 支持的智能体
+
+同一份Skill可安装到Codex、WorkBuddy、Claude Code和其他支持`SKILL.md`的Agent。研究任务、真实性边界和HTML报告一致；宿主只负责提供不同的浏览器、终端或MCP能力。
+
+- Codex：`~/.codex/skills/yuntu-media-research/`
+- WorkBuddy 国内版：`~/.workbuddy/skills/yuntu-media-research/`
+- WorkBuddy 海外版：`~/.workbuddy-ai/skills/yuntu-media-research/`
+- Claude Code：`~/.claude/skills/yuntu-media-research/`
+- 其他宿主：使用`install.py --target "<skills目录>"`
+
+## 一键安装
+
+下载或克隆仓库后，在仓库根目录运行其中一条：
+
+```bash
+# Codex
+python3 install.py --host codex --with-deps
+
+# WorkBuddy 国内版
+python3 install.py --host workbuddy --with-deps
+
+# WorkBuddy 海外版
+python3 install.py --host workbuddy-ai --with-deps
+
+# Claude Code
+python3 install.py --host claude --with-deps
+```
+
+Windows中可将`python3`换成`py`。已安装旧版时追加`--force`覆盖。安装后重启或刷新Agent。
+
+## 手动安装
 
 ```bash
 pip install -r requirements.txt
@@ -30,17 +61,30 @@ pip install -r requirements.txt
 pip install -r requirements-mcp.txt
 ```
 
-将 `skills/yuntu-media-research/` 复制或链接到支持 `SKILL.md` 的Agent技能目录。不同客户端的技能目录与启用方式可能不同，以客户端当前文档为准。
+将`skills/yuntu-media-research/`整个复制到上面对应的技能目录，保证最终路径为`<skills目录>/yuntu-media-research/SKILL.md`，然后安装依赖：
+
+```bash
+python3 -m pip install "redfox-python-sdk>=0.3.0,<1"
+```
 
 ## 配置RedFox
 
-环境变量统一命名为 `REDFOX_API_KEY`。在 [RedFoxHub控制台](https://redfox.hk/dashboard/keys) 自行创建API Key，然后在仓库根目录运行：
+环境变量统一命名为`REDFOX_API_KEY`。在[RedFoxHub控制台](https://redfox.hk/dashboard/keys)自行创建API Key，然后在仓库或已安装的Skill目录运行：
 
 ```bash
+# 在仓库根目录
 python3 skills/yuntu-media-research/scripts/configure_key.py
+
+# 已进入安装后的Skill目录
+python3 scripts/configure_key.py
 ```
 
-输入过程不会显示字符。Key会保存到本机 `.env`，该文件已被Git忽略。也可以只对当前终端设置：
+输入过程不会显示字符。Key默认保存到用户级配置目录，所有工作区都能找到：
+
+- macOS / Linux：`~/.config/yuntu-media-research/.env`
+- Windows：`%APPDATA%\yuntu-media-research\.env`
+
+也可以只对当前终端设置：
 
 - macOS：双击 `setup-key.command`
 - Windows：双击 `setup-key.bat`
@@ -56,6 +100,32 @@ $env:REDFOX_API_KEY="YOUR_API_KEY"
 不要把Key发到聊天、写入示例、输出、截图或GitHub。公开视频里只展示 `status` 返回的 `true/false`，不要展示 `.env` 内容或RedFox密钥页。
 
 ## 第一次运行
+
+安装后，可以直接对Agent说：
+
+```text
+第一次使用 yuntu-media-research，请帮我完成配置检查。
+```
+
+Agent会运行`doctor.py`并逐步引导，不会要求你在聊天里粘贴API Key。也可以自己运行：
+
+```bash
+# 在仓库根目录
+python3 skills/yuntu-media-research/scripts/doctor.py --json
+
+# 已进入安装后的Skill目录
+python3 scripts/doctor.py --json
+```
+
+需要查看内置提示词时，对Agent说：
+
+```text
+请打开 yuntu-media-research 的提示词库，给我最适合当前任务的一条。
+```
+
+完整模板位于`skills/yuntu-media-research/references/prompt-library.md`，包含首次配置、近3天选题、博主分析、单条拆解、三报告演示和跨宿主对比。
+
+### 命令行自检
 
 ```bash
 python3 skills/yuntu-media-research/scripts/redfox_mcp.py status
@@ -73,7 +143,7 @@ python3 skills/yuntu-media-research/scripts/redfox_collect.py collect \
 
 `plan`不会产生付费调用；只有带 `--execute` 的 `collect` 才会请求RedFox。
 
-当前v1.0采用MCP/SDK双通道：MCP适合宿主Agent原生工具调用，SDK提供更广的平台操作目录。调用前使用`estimate_cost.py`估价，调用后用`normalize.py`统一作品和账号字段。无法从官方说明识别价格时会保留`unknown`，不会猜测。
+当前v1.0采用MCP/SDK双通道：MCP适合宿主Agent原生工具调用，SDK提供广域实时搜索和更完整的平台操作目录。是否使用Codex或WorkBuddy不改变研究合同。热点默认先使用`search_works_wide`，账号基线再使用优质库。调用前使用`estimate_cost.py`估价，调用后用`normalize.py`统一作品和账号字段。无法从官方说明识别价格时会保留`unknown`，不会猜测。
 
 关键词搜索可能混入同名或偶然命中内容。`required_any_groups`要求每组至少命中一个词，原始采集与过滤结果会同时保留，便于审计。
 
@@ -95,7 +165,19 @@ python3 skills/yuntu-media-research/scripts/redfox_collect.py collect \
 找出高表现作品、可复用内容结构和3个适合我借鉴的方向。
 ```
 
+内置提示词还包含“一次生成三报告”与“Codex / WorkBuddy同任务独立对比”。
+
 Skill不绑定某个Agent。宿主能读取`SKILL.md`并具备RedFox MCP、Python脚本或浏览器能力中的相应部分即可运行；不同宿主的工具名称可以不同，任务模式、简报和报告结构保持一致。尚未真机验收的宿主不宣称官方兼容。
+
+三种模式分别为`topic-research`、`creator-analysis`和`content-structure-analysis`。Agent完成研究后写入`report.json`：
+
+```bash
+python3 skills/yuntu-media-research/scripts/validate_report.py report.json
+python3 skills/yuntu-media-research/scripts/render_report.py \
+  --input report.json --output report.html
+```
+
+HTML不依赖CDN或本地服务器，可以直接双击打开。多份报告可以使用`render_report_index.py`生成统一入口。
 
 ## 测试
 
@@ -107,7 +189,7 @@ python3 -m unittest discover -s tests -v
 
 ## 平台与状态
 
-Skill本体与Python脚本按macOS和Windows双平台设计，但浏览器控制取决于宿主Agent。`v1.0.0`正在重构：目前已在macOS验收RedFox MCP工具发现、MCP实调用、SDK动态目录、抖音采集、费用模型和统一字段；M2研究层、M3选题层、M4初稿层与Windows真机仍未完成，因此暂不宣称正式可用或已带来增长结果。
+Skill本体与Python脚本按macOS和Windows双平台设计，但浏览器控制取决于宿主Agent。`v1.0.0`已在macOS真实验收RedFox MCP工具发现、广域近3天搜索、优质库账号基线、视频转写、费用模型、统一字段和三种HTML报告。安装器与用户级配置路径已使用临时目录模拟macOS、Windows和多宿主安装；Windows真机与各宿主结果仍以社区反馈持续验证。本项目不宣称已带来流量或增长结果。
 
 ## 设计原则
 

@@ -161,7 +161,7 @@ class StdioMcpClient:
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--env-file", default=".env")
+    parser.add_argument("--env-file", help="Optional env file override")
     parser.add_argument("--command", help="Override REDFOX_MCP_COMMAND, for example: uvx redfox-mcp")
     parser.add_argument("--timeout", type=int, default=60)
     sub = parser.add_subparsers(dest="action", required=True)

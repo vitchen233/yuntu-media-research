@@ -4,6 +4,8 @@ import pathlib
 import sys
 import tempfile
 import unittest
+from datetime import date
+from unittest import mock
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 SKILL = ROOT / "skills" / "yuntu-media-research"
@@ -22,15 +24,29 @@ collector = load_script("redfox_collect.py")
 configure_key = load_script("configure_key.py")
 ranking = load_script("rank_topics.py")
 validator = load_script("validate_output.py")
+renderer = load_script("render_report.py")
+report_validator = load_script("validate_report.py")
 normalizer = load_script("normalize.py")
 redfox_catalog = load_script("redfox_catalog.py")
 redfox_mcp = load_script("redfox_mcp.py")
 estimate_cost = load_script("estimate_cost.py")
+doctor = load_script("doctor.py")
+
+INSTALL_SPEC = importlib.util.spec_from_file_location("installer", ROOT / "install.py")
+installer = importlib.util.module_from_spec(INSTALL_SPEC)
+INSTALL_SPEC.loader.exec_module(installer)
 
 
 class TestCollector(unittest.TestCase):
     def test_plan_counts_requests(self):
         self.assertEqual(collector.plan({"queries": ["a", "b"], "pages_per_query": 2})["estimated_requests"], 4)
+
+    def test_relative_three_day_window(self):
+        self.assertEqual(collector.resolve_time_window({"days": 3}, date(2026, 8, 30)), ("2026-08-28", "2026-08-30"))
+
+    def test_explicit_dates_override_relative_window(self):
+        config = {"days": 3, "start_date": "2026-08-01", "end_date": "2026-08-07"}
+        self.assertEqual(collector.resolve_time_window(config, date(2026, 8, 30)), ("2026-08-01", "2026-08-07"))
 
     def test_local_env_file(self):
         with tempfile.TemporaryDirectory() as temp:
@@ -44,6 +60,23 @@ class TestCollector(unittest.TestCase):
                 collector.os.environ.pop("REDFOX_API_KEY", None)
                 if old is not None:
                     collector.os.environ["REDFOX_API_KEY"] = old
+
+    def test_user_config_env_file_is_discovered(self):
+        runtime = load_script("redfox_runtime.py")
+        with tempfile.TemporaryDirectory() as temp:
+            config_root = pathlib.Path(temp) / "config"
+            env_file = config_root / "yuntu-media-research" / ".env"
+            env_file.parent.mkdir(parents=True)
+            env_file.write_text("REDFOX_API_KEY=test-user-config\n", encoding="utf-8")
+            old = runtime.os.environ.pop("REDFOX_API_KEY", None)
+            try:
+                with mock.patch.dict(runtime.os.environ, {"XDG_CONFIG_HOME": str(config_root)}, clear=False), mock.patch.object(runtime.Path, "cwd", return_value=pathlib.Path(temp) / "workspace"):
+                    self.assertTrue(runtime.load_env_file())
+                    self.assertEqual(runtime.os.environ["REDFOX_API_KEY"], "test-user-config")
+            finally:
+                runtime.os.environ.pop("REDFOX_API_KEY", None)
+                if old is not None:
+                    runtime.os.environ["REDFOX_API_KEY"] = old
 
     def test_relevance_requires_each_group(self):
         groups = [["AI", "Codex"], ["自媒体", "选题"]]
@@ -149,6 +182,88 @@ class TestValidation(unittest.TestCase):
             card.update({"source_ids": ["S001"], "benchmark_urls": ["https://example.com/post"]})
             (root / "topic_cards.jsonl").write_text(json.dumps(card) + "\n", encoding="utf-8")
             self.assertEqual(validator.validate(root), [])
+
+
+class TestHtmlRenderer(unittest.TestCase):
+    def test_topic_report_is_standalone_and_escaped(self):
+        data = {
+            "report_type": "topic-research",
+            "title": "A < B",
+            "sources": [],
+            "candidates": [],
+            "limitations": [],
+        }
+        page = renderer.render(data)
+        self.assertIn("<!doctype html>", page.lower())
+        self.assertIn("A &lt; B", page)
+        self.assertNotIn("https://fonts", page)
+
+    def test_all_report_types_render(self):
+        for report_type in renderer.ACCENTS:
+            page = renderer.render({"report_type": report_type, "title": report_type})
+            self.assertIn("YUNTU MEDIA RESEARCH", page)
+
+    def test_creator_report_renders_rich_analysis(self):
+        data = {
+            "report_type": "creator-analysis",
+            "title": "creator",
+            "profile": {"positioning": "AI实战"},
+            "hook_patterns": [{"label": "结果钩子", "share": 50, "examples": ["结果"], "mechanism": "前置收益"}],
+            "method_matrix": [{"stage": "开头", "action": "展示", "proof": "录屏", "purpose": "停留"}],
+            "conversion_funnel": [{"stage": "01", "label": "停留", "detail": "看到结果", "width": 100}],
+            "engagement_scatter": [{"title": "A", "likes": 100, "save_rate": 0.5, "share_rate": 0.1, "url": "https://example.com"}],
+        }
+        page = renderer.render(data)
+        self.assertIn("钩子系统", page)
+        self.assertIn("内容方法", page)
+        self.assertIn("转化路径", page)
+
+    def test_topic_report_renders_research_dashboard(self):
+        data = {"report_type": "topic-research", "title": "topic", "signal_map": [{"label": "Skill", "share": 40}], "evidence_ladder": [{"label": "实时搜索"}], "candidates": []}
+        page = renderer.render(data)
+        self.assertIn("观众正在用什么方式找答案", page)
+        self.assertIn("证据链", page)
+
+    def test_structure_report_renders_visual_analysis(self):
+        data = {"report_type": "content-structure-analysis", "title": "structure", "attention_curve": [{"time": "00:00", "label": "钩子", "strength": 90}], "visual_mix": [{"label": "录屏", "share": 60}], "stages": []}
+        page = renderer.render(data)
+        self.assertIn("注意力曲线", page)
+        self.assertIn("画面组成", page)
+
+    def test_report_validator_rejects_placeholder_and_missing_sources(self):
+        data = {"report_type": "topic-research", "title": "TODO", "summary": "x", "generated_at": "now", "method": "x", "limitations": ["x"], "candidates": [{}, {}, {}]}
+        errors = report_validator.validate(data)
+        self.assertTrue(any("placeholder" in error for error in errors))
+        self.assertTrue(any("source" in error for error in errors))
+
+    def test_wide_row_normalization(self):
+        row = {"videoId": "42", "opusUrl": "https://example.org/video/42", "content": "x", "authorName": "a", "likeCount": 9}
+        result = collector.normalize_row(row, "wide")
+        self.assertEqual(result["work_id"], "42")
+        self.assertEqual(result["likes"], 9)
+
+
+class TestDistribution(unittest.TestCase):
+    def test_custom_host_install_copies_complete_skill(self):
+        with tempfile.TemporaryDirectory() as temp:
+            target = installer.install(ROOT / "skills" / "yuntu-media-research", pathlib.Path(temp))
+            self.assertTrue((target / "SKILL.md").is_file())
+            self.assertTrue((target / "references" / "prompt-library.md").is_file())
+            self.assertTrue((target / "scripts" / "doctor.py").is_file())
+
+    def test_installer_refuses_implicit_overwrite(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = pathlib.Path(temp)
+            installer.install(ROOT / "skills" / "yuntu-media-research", root)
+            with self.assertRaises(FileExistsError):
+                installer.install(ROOT / "skills" / "yuntu-media-research", root)
+
+    def test_doctor_never_returns_key_value(self):
+        secret = "secret-value-that-must-not-leak"
+        with mock.patch.dict(doctor.os.environ, {"REDFOX_API_KEY": secret}, clear=False):
+            result = doctor.diagnose()
+        self.assertTrue(result["redfox_api_key_configured"])
+        self.assertNotIn(secret, json.dumps(result))
 
 
 if __name__ == "__main__":

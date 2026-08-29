@@ -31,3 +31,11 @@
 评分字段 `demand`、`momentum`、`differentiation`、`evidence`、`shootability`、`asset_value` 均为0至5。
 
 `shooting_task`必须具体，例如“让Codex通过RedFox采集近3天AI工具视频并输出带链接的选题表”，不能只写“展示AI提效”。
+
+## report.json与report.html
+
+三种任务最终都必须保存`report.json`和由`scripts/render_report.py`生成的独立`report.html`。字段合同见`html-report-contract.md`。
+
+近3天选题报告额外记录`data_tier: realtime-wide`和真实时间窗；账号报告记录账号内样本口径；内容结构报告必须包含原作品URL、页面核对方式和转写状态。
+
+生成前运行`scripts/validate_report.py report.json`。校验禁止示例数据、占位词、无来源候选和无原作品链接的结构报告。

@@ -1,11 +1,11 @@
 ---
 name: yuntu-media-research
-description: 使用RedFox批量数据与可用浏览器完成选题调研、博主分析和热点分析，并生成可拍、可展示的内容候选。适用于创作者问今天讲什么、近3天什么题有流量、分析某个博主、寻找高表现单条或准备自媒体研究演示时。
+description: 使用RedFox实时与优质数据、可用浏览器完成选题调研、博主分析和单条内容结构拆解，并生成可追溯、可录屏的独立HTML报告。适用于创作者问今天讲什么、近3天什么题有流量、分析某个博主、拆解高表现作品或准备自媒体研究演示时。
 ---
 
 # 云途自媒体研究
 
-把“今天讲什么、这个博主为什么有效、最近什么在涨”推进成可拍、可展示的调研结果。RedFoxHub负责批量结构化数据；优先使用宿主已连接的RedFox MCP，否则使用官方Python SDK。浏览器负责寻找和核对具体单条，评论只在页面自然可见且当前任务确有需要时顺手查看。
+把“今天讲什么、这个博主为什么有效、这条内容是怎样抓住人的”推进成可拍、可展示的调研结果。RedFoxHub广域库负责近3天实时发现，优质库负责账号基线与历史详情；优先使用宿主已连接的RedFox MCP，否则使用官方Python SDK。浏览器负责核对具体单条，评论只在页面自然可见且当前任务确有需要时顺手查看。
 
 ## 核心边界
 
@@ -17,6 +17,8 @@ description: 使用RedFox批量数据与可用浏览器完成选题调研、博�
 6. 写初稿前必须已有来源清单、代表单条与选题依据，模型常识不能冒充近期热度。
 7. 无法采集时保存失败与已尝试路径，不能把采集悄悄退回给用户后声称任务完成。
 8. 本Skill服务于内容调研与视频演示，不以建立完备的社媒数据研究平台为目标。
+9. 近3天热点判断必须优先调用广域/实时接口；优质库空结果不能写成“没有热度”。
+10. 最终报告必须使用真实采集数据；示例、占位符和模型编造数据不得进入可录屏产物。
 
 ## 默认任务参数
 
@@ -32,13 +34,19 @@ description: 使用RedFox批量数据与可用浏览器完成选题调研、博�
 
 ## 工作流
 
+### -1. 首次运行与自动引导
+
+用户第一次调用、主动要求配置或发生认证/依赖错误时，读取`references/first-run.md`，运行`scripts/doctor.py --json`并按`next_action`逐步引导。不要让用户在聊天里粘贴API Key。
+
+用户要求使用示例、复制提示词或不知道怎么开始时，读取`references/prompt-library.md`，只推荐与当前任务匹配的模板。
+
 ### 0. 选择任务模式
 
 - `topic-research`：浏览器寻找具体单条并核对页面，RedFox补批量作品和互动数据，输出可拍选题。
 - `creator-analysis`：RedFox采集博主主页、近期作品和账号内相对表现，输出内容结构、代表作品和可借鉴方向；不要求评论。
-- `hotspot-analysis`：RedFox搜索关键词、榜单或增长作品，浏览器抽查代表单条，输出当前热点和可拍切口。
+- `content-structure-analysis`：读取一条确定作品的页面、详情或转写，拆解开头、推进顺序、证明方式、画面任务和可复用结构。
 
-默认只选一个模式，不为展示功能而一次运行全部研究模块。
+默认只选一个模式。需要演示完整链路时可以按`topic-research → creator-analysis → content-structure-analysis`依次运行，前一步的选中对象必须成为下一步输入。
 
 随后读取`references/agent-workflows.md`，执行宿主能力检查并选择对应提示词。内部简报使用`assets/research-brief.md`，最终结果使用对应报告模板。
 
@@ -70,10 +78,18 @@ python3 scripts/estimate_cost.py --plan assets/example-request-plan.json
 
 抖音快速研究优先组合：
 
-- 关键词作品搜索：找近3天具体任务与工具内容
+- 广域关键词作品搜索：找近3天具体任务与工具内容
 - 每日/七日点赞飙升榜：发现超出常规搜索词的尾流
-- 账号作品与详情：建立账号内基线
-- 视频提文案：只对少量确定的高价值对标使用
+- 优质库账号作品与详情：建立账号内历史基线
+- 广域作品详情与视频提文案：只对少量确定的高价值对标使用
+
+三层调用顺序：
+
+1. `realtime-wide`：近3天发现与增长判断。
+2. `quality`：账号、历史作品和完整字段补充。
+3. `browser-verified`：页面存在性、可见标题、章节、评论与播放内容抽查。
+
+广域库无样本时才拆分组合词或扩到7天；每次回退都写入`fallback_log.jsonl`，不能悄悄改变时间范围。
 
 当前RedFox能力、字段和成本边界见 `references/redfox.md`。核心任务与验收见`references/research-capabilities.md`。接口可能变化，运行前以官方文档为准。
 
@@ -101,7 +117,7 @@ python3 scripts/normalize.py --input raw/redfox/mcp.json --kind work \
 
 ### 4. 浏览器寻找与核对单条
 
-围绕当前任务寻找或抽查3至5条真实页面，保存可见标题、作者、发布时间、指标和页面URL。选题调研可以顺手查看页面中自然可见的评论，博主分析和热点分析不以评论为前置条件。不得为了补齐字段额外接入评论API。
+围绕当前任务寻找或抽查3至5条真实页面，保存可见标题、作者、发布时间、指标和页面URL。选题调研可以顺手查看页面中自然可见的评论，博主分析和内容结构拆解不以评论为前置条件。不得为了补齐字段额外接入评论API。
 
 ### 5. 识别尾流机会
 
@@ -125,11 +141,22 @@ python3 scripts/rank_topics.py research-output/<task>/topic_cards.jsonl \
   --out research-output/<task>/topic_ranking.csv
 ```
 
-### 7. 用户确认后形成初稿
+### 7. 生成可视化报告
+
+Agent先按`references/html-report-contract.md`写入对应的`report.json`，再运行：
+
+```bash
+python3 scripts/validate_report.py report.json
+python3 scripts/render_report.py --input report.json --output report.html
+```
+
+输出为单文件HTML，不依赖网络字体、CDN或本地服务，可直接双击打开。三种报告必须使用真实来源、明确采集层级、生成时间、样本限制与失败记录。
+
+### 8. 用户确认后形成初稿
 
 生成 `selected_topic.md`、`benchmark_report.md`、`draft.md` 和 `audit.md`。初稿里的近期事实、指标和第三方行为使用 `[Sxxx]`；个人实测、计算和推断分别用 `[Practice]`、`[Calculated]`、`[Inference]`。
 
-### 8. 验收
+### 9. 验收
 
 ```bash
 python3 scripts/validate_output.py research-output/<task>
@@ -143,6 +170,8 @@ python3 scripts/validate_output.py research-output/<task>
 
 ## 资源
 
+- 首次运行：`references/first-run.md`
+- 可复制提示词：`references/prompt-library.md`
 - RedFox接入：`references/redfox.md`
 - 核心任务验收：`references/research-capabilities.md`
 - 通用Agent提示词：`references/agent-workflows.md`
@@ -152,7 +181,9 @@ python3 scripts/validate_output.py research-output/<task>
 - 研究简报：`assets/research-brief.md`
 - 选题报告：`assets/topic-research-report.md`
 - 博主报告：`assets/creator-analysis-report.md`
-- 热点报告：`assets/hotspot-analysis-report.md`
+- 内容结构报告：`assets/content-structure-analysis-report.md`
+- HTML报告合同：`references/html-report-contract.md`
+- HTML渲染：`scripts/render_report.py`
 - 数据采集：`scripts/redfox_collect.py`
 - MCP工具发现与调用：`scripts/redfox_mcp.py`
 - SDK能力发现与调用：`scripts/redfox_catalog.py`

@@ -3,12 +3,12 @@
   "creator_niche": "AI实用教学",
   "target_audience": "正在做内容但仍手工找选题和整理对标的个人创作者",
   "platform": "douyin",
-  "search_mode": "ai",
-  "start_date": "2026-08-27",
-  "end_date": "2026-08-30",
-  "queries": ["Codex"],
+  "search_mode": "wide",
+  "days": 3,
+  "queries": ["Codex", "WorkBuddy"],
   "required_any_groups": [
-    ["Codex"]
+    ["Codex", "WorkBuddy"],
+    ["自媒体", "选题", "内容", "视频", "Skill"]
   ],
   "sort_type": "_4",
   "pages_per_query": 1,

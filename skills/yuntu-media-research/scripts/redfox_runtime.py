@@ -6,10 +6,42 @@ import os
 from pathlib import Path
 
 
-def load_env_file(path=".env"):
-    path = Path(path)
-    if not path.is_file():
-        return False
+def user_config_dir():
+    if os.name == "nt":
+        root = Path(os.getenv("APPDATA") or (Path.home() / "AppData" / "Roaming"))
+    else:
+        root = Path(os.getenv("XDG_CONFIG_HOME") or (Path.home() / ".config"))
+    return root / "yuntu-media-research"
+
+
+def default_env_path():
+    return user_config_dir() / ".env"
+
+
+def env_candidates(path=None):
+    candidates = []
+    if path:
+        candidates.append(Path(path).expanduser())
+    configured = os.getenv("YUNTU_MEDIA_RESEARCH_ENV")
+    if configured:
+        candidates.append(Path(configured).expanduser())
+    candidates.extend((Path.cwd() / ".env", default_env_path()))
+    unique = []
+    for candidate in candidates:
+        resolved = candidate.resolve()
+        if resolved not in unique:
+            unique.append(resolved)
+    return unique
+
+
+def load_env_file(path=None):
+    for candidate in env_candidates(path):
+        if candidate.is_file() and _load_env_candidate(candidate):
+            return True
+    return False
+
+
+def _load_env_candidate(path):
     for raw_line in path.read_text(encoding="utf-8").splitlines():
         line = raw_line.strip()
         if not line or line.startswith("#") or "=" not in line:

@@ -4,26 +4,10 @@
 import argparse
 import json
 import os
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
-
-def load_env_file(path):
-    path = Path(path)
-    if not path.is_file():
-        return False
-    for raw_line in path.read_text(encoding="utf-8").splitlines():
-        line = raw_line.strip()
-        if not line or line.startswith("#") or "=" not in line:
-            continue
-        key, value = line.split("=", 1)
-        if key.strip() != "REDFOX_API_KEY":
-            continue
-        value = value.strip().strip('"').strip("'")
-        if value and not os.getenv("REDFOX_API_KEY"):
-            os.environ["REDFOX_API_KEY"] = value
-        return bool(value)
-    return False
+from redfox_runtime import load_env_file
 
 
 def load_config(path):
@@ -35,12 +19,24 @@ def load_config(path):
     return config
 
 
+def resolve_time_window(config, today=None):
+    if config.get("start_date") or config.get("end_date"):
+        return config.get("start_date"), config.get("end_date")
+    days = int(config.get("days", 3))
+    if days < 1 or days > 30:
+        raise ValueError("days must be between 1 and 30")
+    end = today or datetime.now().astimezone().date()
+    start = end - timedelta(days=days - 1)
+    return start.isoformat(), end.isoformat()
+
+
 def plan(config):
     pages = int(config.get("pages_per_query", 1))
     if pages < 1 or pages > 5:
         raise ValueError("pages_per_query must be between 1 and 5")
     requests = len(config["queries"]) * pages
-    return {"search_mode": config.get("search_mode", "quality"), "queries": len(config["queries"]), "pages_per_query": pages, "estimated_requests": requests, "price_note": "Check current RedFox pricing before execution."}
+    start_date, end_date = resolve_time_window(config)
+    return {"search_mode": config.get("search_mode", "quality"), "queries": len(config["queries"]), "pages_per_query": pages, "estimated_requests": requests, "start_date": start_date, "end_date": end_date, "price_note": "Check current RedFox pricing before execution."}
 
 
 def matches_relevance(work, required_any_groups):
@@ -76,6 +72,26 @@ def filter_pairs(manifest, works, required_any_groups):
 
 
 def normalize_row(row, search_mode):
+    if search_mode == "wide":
+        work_id = str(row.get("videoId") or row.get("workId") or "")
+        observed_url = row.get("opusUrl") or row.get("workUrl") or ""
+        return {
+            "work_id": work_id,
+            "url": observed_url,
+            "url_basis": "observed",
+            "title": row.get("content") or row.get("title") or "",
+            "content": row.get("content") or row.get("title") or "",
+            "author": row.get("authorName") or "",
+            "author_url": None,
+            "published_at": row.get("publishTime"),
+            "likes": row.get("likeCount"),
+            "comments": row.get("commentCount"),
+            "shares": row.get("shareCount"),
+            "saves": row.get("collectCount"),
+            "followers": row.get("authorFansCount"),
+            "comment_top_keywords": None,
+            "crawl_time": None,
+        }
     if search_mode == "ai":
         work_id = str(row.get("photoId") or "")
         observed_url = row.get("url") or ""
@@ -139,21 +155,30 @@ def collect(config, out_root):
     sequence = 1
     pages = int(config.get("pages_per_query", 1))
     search_mode = config.get("search_mode", "quality")
-    if search_mode not in {"quality", "ai"}:
-        raise ValueError("search_mode must be quality or ai")
+    start_date, end_date = resolve_time_window(config)
+    if search_mode not in {"wide", "quality", "ai"}:
+        raise ValueError("search_mode must be wide, quality or ai")
 
     for query_index, query in enumerate(config["queries"], 1):
         for page in range(pages):
             offset = page * 20
-            if search_mode == "ai":
-                start_time = f"{config.get('start_date')} 00:00:00" if config.get("start_date") else None
-                end_time = f"{config.get('end_date')} 23:59:59" if config.get("end_date") else None
+            if search_mode == "wide":
+                result = client.douyin.search_works_wide(
+                    keyword=query,
+                    start_date=start_date,
+                    end_date=end_date,
+                    page_num=page + 1,
+                    page_size=20,
+                )
+            elif search_mode == "ai":
+                start_time = f"{start_date} 00:00:00"
+                end_time = f"{end_date} 23:59:59"
                 result = client.douyin.search_ai_articles(keyword=query, page_num=page + 1, page_size=20, start_time=start_time, end_time=end_time)
             else:
                 payload = {
                     "keyword": query,
-                    "startDate": config.get("start_date"),
-                    "endDate": config.get("end_date"),
+                    "startDate": start_date,
+                    "endDate": end_date,
                     "offset": offset,
                     "sortType": config.get("sort_type", "_0"),
                 }
@@ -203,7 +228,7 @@ def collect(config, out_root):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--env-file", default=".env", help="Local env file; defaults to .env in the current directory")
+    parser.add_argument("--env-file", help="Optional env file override")
     sub = parser.add_subparsers(dest="command", required=True)
     sub.add_parser("status")
     plan_parser = sub.add_parser("plan")

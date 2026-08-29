@@ -60,6 +60,8 @@ def price_class_from_description(description):
         return "quality"
     if "实时" in text or "realtime" in text.lower():
         return "realtime"
+    if "广域库" in text:
+        return "unknown"
     return "unknown"
 
 
@@ -139,7 +141,7 @@ def call_operation(operation_id, arguments):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--env-file", default=".env")
+    parser.add_argument("--env-file", help="Optional env file override")
     sub = parser.add_subparsers(dest="command", required=True)
     sub.add_parser("status")
     catalog_parser = sub.add_parser("catalog")

@@ -6,6 +6,8 @@ import getpass
 import os
 from pathlib import Path
 
+from redfox_runtime import default_env_path
+
 
 def write_env(path, api_key):
     if not api_key.strip():
@@ -21,10 +23,12 @@ def write_env(path, api_key):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--out", default=".env", help="Where to save the local env file")
+    parser.add_argument("--out", help="Where to save the local env file; defaults to the user config directory")
     args = parser.parse_args()
     api_key = getpass.getpass("REDFOX_API_KEY (input hidden): ")
-    path = write_env(args.out, api_key)
+    output = Path(args.out).expanduser() if args.out else default_env_path()
+    output.parent.mkdir(parents=True, exist_ok=True)
+    path = write_env(output, api_key)
     print(f"Saved REDFOX_API_KEY to {path}. The key was not printed.")
 
 

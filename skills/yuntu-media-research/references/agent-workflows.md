@@ -8,20 +8,24 @@
 
 执行任务前按顺序判断：
 
-1. 当前会话是否已有`mcp__redfox__*`工具；有则优先使用。
-2. 没有MCP时，能否运行`redfox_catalog.py status`；能则使用SDK。
-3. 当前是否有浏览器能力；有则用于寻找或核对具体单条。
-4. 没有浏览器时仍可完成RedFox批量分析，但报告必须标记“单条页面未人工核对”。
-5. 只有RedFox密钥和浏览器都不可用时，才向用户说明缺少哪项能力；不要要求用户代为整理整批数据。
+1. 第一次运行`scripts/doctor.py --json`，只读取配置状态，不输出密钥。
+2. 当前会话是否已有RedFox MCP工具；有则优先使用，工具名不强制为某个宿主前缀。
+3. 没有MCP时，能否运行`redfox_catalog.py status`；能则使用SDK。
+4. 当前是否有浏览器能力；有则用于寻找或核对具体单条。
+5. 没有浏览器时仍可完成RedFox批量分析，但报告必须标记“单条页面未人工核对”。
+6. 只有RedFox密钥和浏览器都不可用时，才向用户说明缺少哪项能力；不要要求用户代为整理整批数据。
 
 ## 通用调用提示词
 
+面向用户的完整可复制版本见`prompt-library.md`。以下只是Agent内部简版：
+
 ```text
 调用 yuntu-media-research。
-请先判断本题属于选题调研、博主分析还是热点分析，只运行一个主模式。
+请先判断本题属于选题调研、博主分析还是内容结构拆解，只运行一个主模式。
 优先使用当前可用的RedFox MCP；没有MCP时使用Skill自带SDK脚本。
 需要寻找或核对具体单条时使用当前Agent的浏览器能力。
-先给出简短采集计划和预计请求数，再执行；最后按对应模板输出可展示的调研报告。
+近3天选题先使用广域实时库，账号基线再使用优质库，最后由浏览器核对代表单条。
+先给出简短采集计划和预计请求数，再执行；最后生成可双击打开的独立HTML报告。
 不要为了补齐字段接入额外评论API，不要编造浏览器未看到的数据。
 ```
 
@@ -45,21 +49,22 @@
 评论不是必需项，不要因为没有评论中断分析。
 ```
 
-## 热点分析
+## 内容结构拆解
 
 ```text
-调用 yuntu-media-research，运行 hotspot-analysis。
-热点对象：{{关键词、产品、事件或工具}}。
-请用RedFox搜索近期作品、增长内容或可用榜单，再用浏览器核对3至5条代表单条。
-说明热度来自哪里、目前大家在用什么角度讲、哪些角度已经拥挤、当前创作者最适合从哪个具体任务切入。
-最终给3条可拍候选，不写完整稿件。
+调用 yuntu-media-research，运行 content-structure-analysis。
+分析对象：{{一条公开作品链接}}。
+请优先取得作品详情或视频转写，并用浏览器核对页面、章节和可见画面。
+按时间顺序拆解开头承诺、结果证明、动作推进、判断转折、画面任务和结尾承接。
+明确哪些结构可复用、哪些依赖作者人格或未经验证承诺；最后给出当前创作者自己的改写方向，不复制原句。
 ```
 
 ## 输出选择
 
 - `topic-research`使用`assets/topic-research-report.md`。
 - `creator-analysis`使用`assets/creator-analysis-report.md`。
-- `hotspot-analysis`使用`assets/hotspot-analysis-report.md`。
+- `content-structure-analysis`使用`assets/content-structure-analysis-report.md`。
 - 三种模式都先使用`assets/research-brief.md`建立内部简报。
+- 三种模式最终都按`references/html-report-contract.md`生成`report.json`与独立`report.html`。
 
 模板用于保证不漏关键结果，不要求空着的章节硬填内容。没有证据的字段直接删除或标记未核对。
