@@ -14,7 +14,7 @@ description: 使用RedFox批量数据与可用浏览器完成选题调研、博�
 3. 只处理公开数据，不绕过登录、验证码、付费墙或平台限制。
 4. 页面事实、API字段、计算、推断和假设分开；缺字段就写缺失。
 5. 借鉴热门任务、结构和需求，不复制原句、人格、包装或未经验证的效果承诺。
-6. 写初稿前必须已有来源清单、观众问题与选题证据，模型常识不能冒充近期热度。
+6. 写初稿前必须已有来源清单、代表单条与选题依据，模型常识不能冒充近期热度。
 7. 无法采集时保存失败与已尝试路径，不能把采集悄悄退回给用户后声称任务完成。
 8. 本Skill服务于内容调研与视频演示，不以建立完备的社媒数据研究平台为目标。
 
@@ -39,6 +39,8 @@ description: 使用RedFox批量数据与可用浏览器完成选题调研、博�
 - `hotspot-analysis`：RedFox搜索关键词、榜单或增长作品，浏览器抽查代表单条，输出当前热点和可拍切口。
 
 默认只选一个模式，不为展示功能而一次运行全部研究模块。
+
+随后读取`references/agent-workflows.md`，执行宿主能力检查并选择对应提示词。内部简报使用`assets/research-brief.md`，最终结果使用对应报告模板。
 
 ### 1. 建立简报
 
@@ -73,7 +75,7 @@ python3 scripts/estimate_cost.py --plan assets/example-request-plan.json
 - 账号作品与详情：建立账号内基线
 - 视频提文案：只对少量确定的高价值对标使用
 
-当前RedFox能力、字段和成本边界见 `references/redfox.md`。完整研究能力与验收见`references/research-capabilities.md`。接口可能变化，运行前以官方文档为准。
+当前RedFox能力、字段和成本边界见 `references/redfox.md`。核心任务与验收见`references/research-capabilities.md`。接口可能变化，运行前以官方文档为准。
 
 ### 3. 执行采集与保留原始响应
 
@@ -143,9 +145,14 @@ python3 scripts/validate_output.py research-output/<task>
 
 - RedFox接入：`references/redfox.md`
 - 核心任务验收：`references/research-capabilities.md`
+- 通用Agent提示词：`references/agent-workflows.md`
 - 输出字段：`references/output-contract.md`
 - 证据与安全：`references/evidence-and-safety.md`
 - 示例任务：`assets/example-task.json`
+- 研究简报：`assets/research-brief.md`
+- 选题报告：`assets/topic-research-report.md`
+- 博主报告：`assets/creator-analysis-report.md`
+- 热点报告：`assets/hotspot-analysis-report.md`
 - 数据采集：`scripts/redfox_collect.py`
 - MCP工具发现与调用：`scripts/redfox_mcp.py`
 - SDK能力发现与调用：`scripts/redfox_catalog.py`

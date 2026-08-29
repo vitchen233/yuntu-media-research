@@ -87,6 +87,16 @@ python3 skills/yuntu-media-research/scripts/redfox_collect.py collect \
 我确认一条后，再输出对标报告和带来源初稿。
 ```
 
+也可以直接运行三种模式：
+
+```text
+调用 yuntu-media-research，运行 creator-analysis。
+分析这个公开博主主页，使用RedFox采集近期作品并建立账号内基线。
+找出高表现作品、可复用内容结构和3个适合我借鉴的方向。
+```
+
+Skill不绑定某个Agent。宿主能读取`SKILL.md`并具备RedFox MCP、Python脚本或浏览器能力中的相应部分即可运行；不同宿主的工具名称可以不同，任务模式、简报和报告结构保持一致。尚未真机验收的宿主不宣称官方兼容。
+
 ## 测试
 
 ```bash
