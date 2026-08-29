@@ -161,7 +161,16 @@ python3 skills/yuntu-media-research/scripts/configure_profile.py \
 请打开 yuntu-media-research 的提示词库，给我最适合当前任务的一条。
 ```
 
-完整模板位于`skills/yuntu-media-research/references/prompt-library.md`，包含首次配置、近3天选题、博主分析、单条拆解、三报告演示和跨宿主对比。
+完整模板位于[`skills/yuntu-media-research/references/prompt-library.md`](skills/yuntu-media-research/references/prompt-library.md)，可以直接发给观众或用于录屏，包含：
+
+1. 新电脑安装；
+2. 首次初始化与创作者档案配置；
+3. 根据主题找近3天选题；
+4. 拆解作者主页；
+5. 拆解单条视频；
+6. 从主页和单条结果提炼可复用结构；
+7. 一次跑完的完整演示；
+8. 跨宿主对比与研究后初稿。
 
 研究完成并选中题目后，可以继续说：
 

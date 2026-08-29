@@ -254,6 +254,10 @@ class TestDistribution(unittest.TestCase):
             self.assertTrue((target / "references" / "prompt-library.md").is_file())
             self.assertTrue((target / "references" / "local-transcription.md").is_file())
             self.assertTrue((target / "scripts" / "doctor.py").is_file())
+            prompt_library = (target / "references" / "prompt-library.md").read_text(encoding="utf-8")
+            self.assertIn("## 0. 新电脑安装", prompt_library)
+            self.assertIn("## 5. 从主页与单条结果提炼可复用结构", prompt_library)
+            self.assertIn("## 7. 新电脑完整演示", prompt_library)
 
     def test_installer_refuses_implicit_overwrite(self):
         with tempfile.TemporaryDirectory() as temp:
