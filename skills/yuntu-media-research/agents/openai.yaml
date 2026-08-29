@@ -1,0 +1,4 @@
+interface:
+  display_name: "云途自媒体研究"
+  short_description: "使用红狐数据自动采集近期素材并生成可追溯选题、对标分析与初稿"
+  default_prompt: "使用红狐数据研究我的自媒体赛道，由AI采集近期公开素材，输出带来源的选题、对标分析和初稿。"

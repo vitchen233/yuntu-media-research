@@ -1,0 +1,18 @@
+{
+  "task_id": "codex-for-creators",
+  "creator_niche": "AI实用教学",
+  "target_audience": "正在做内容但仍手工找选题和整理对标的个人创作者",
+  "platform": "douyin",
+  "search_mode": "ai",
+  "start_date": "2026-08-27",
+  "end_date": "2026-08-30",
+  "queries": ["Codex"],
+  "required_any_groups": [
+    ["Codex"]
+  ],
+  "sort_type": "_4",
+  "pages_per_query": 1,
+  "goal": "增长与Skill领取",
+  "delivery_asset": "可公开安装的自媒体研究Skill",
+  "material_input_mode": "ai-collected"
+}
