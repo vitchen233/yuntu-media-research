@@ -6,7 +6,7 @@
 
 ## 图文使用手册
 
-- [下载《Yuntu Media Research Skill 使用指南》PDF](docs/yuntu-media-research-user-guide-responsive-rev2.pdf)
+- [下载《Yuntu Media Research Skill 使用指南》PDF](docs/yuntu-media-research-user-guide-responsive-rev3.pdf)
 - [查看手册排版源文件](docs/user-guide.html)
 - [打开可复制提示词库](skills/yuntu-media-research/references/prompt-library.md)
 
