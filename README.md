@@ -6,7 +6,7 @@
 
 ## 图文使用手册
 
-- [下载《Yuntu Media Research Skill 使用指南》PDF](docs/yuntu-media-research-user-guide-responsive-rev3.pdf)
+- [下载《Yuntu Media Research Skill 使用指南》PDF](docs/yuntu-media-research-user-guide-responsive-rev4.pdf)
 - [查看手册排版源文件](docs/user-guide.html)
 - [打开可复制提示词库](skills/yuntu-media-research/references/prompt-library.md)
 
@@ -231,6 +231,17 @@ python3 skills/yuntu-media-research/scripts/redfox_collect.py collect \
 内置提示词还包含“一次生成三报告”与“Codex / WorkBuddy同任务独立对比”。
 
 Skill不绑定某个Agent。宿主能读取`SKILL.md`并具备RedFox MCP、Python脚本或浏览器能力中的相应部分即可运行；不同宿主的工具名称可以不同，任务模式、简报和报告结构保持一致。尚未真机验收的宿主不宣称官方兼容。
+
+### 单条页面为什么有时需要重新登录
+
+单条作品的画面、字幕和可见评论由宿主Agent的浏览器核对，不是RedFox直接提供。不同Agent可能使用不同会话：
+
+- 能控制系统Chrome的宿主，可以在用户授权后复用已经登录的平台账号；Codex可使用当前环境可用的Chrome控制插件/MCP或等价能力，具体工具名不固定。
+- 只有内置浏览器的宿主通常是独立会话，页面要求登录时由用户在该浏览器中自行完成登录。
+- WorkBuddy、Claude Code和其他Agent先检查实际支持的浏览器扩展、MCP或持久会话，不假设它们与Codex相同。
+- 无法使用浏览器或登录受阻时，仍可用RedFox完成批量选题和账号分析，但报告会标记单条未核对；不得把RedFox字段冒充完整页面分析。
+
+Skill不会要求用户在聊天中发送密码、验证码、Cookie或Token，也不会导出浏览器档案。完整说明和排错提示词见[`browser-session.md`](skills/yuntu-media-research/references/browser-session.md)。
 
 三种模式分别为`topic-research`、`creator-analysis`和`content-structure-analysis`。Agent完成研究后写入`report.json`：
 

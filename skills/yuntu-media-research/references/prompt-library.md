@@ -83,6 +83,7 @@ https://github.com/vitchen233/yuntu-media-research
 我准备制作的内容是：{{你的主题}}。
 
 请先用浏览器核对页面、章节、可见字幕和画面。确实需要完整文案时，先检测本机FunASR；缺少时先征得我同意，再从官方渠道安装或拉取到Skill之外的隔离环境。只有本地方案不可用时，才告诉我RedFox转写的预计费用并等待确认。完整机器转写可以保存在本地研究目录供分析，但不要在公开HTML里全文转载。
+如果页面需要登录，先判断当前Agent能否连接我已经登录的系统Chrome。可以连接时只操作我授权的目标标签页；不能连接时说明使用的是独立会话，让我自行登录。不要让我在聊天中发送密码、验证码、Cookie或Token。仍无法访问时标记login-blocked，不要把RedFox字段冒充为浏览器核对结果。
 按时间顺序拆解：
 - 开头承诺和第一份证明；
 - 每个段落的话语作用与观众所得；
@@ -181,4 +182,16 @@ https://github.com/vitchen233/yuntu-media-research
 不要复制任何对标作者的原句、人格、独特命名和效果承诺，不要编造播放量、涨粉或节省时间。
 输出selected_topic.md、draft.md、draft_source_map.json和audit.md，并运行validate_draft.py检查。
 先给我初稿，不写A/B-roll、分镜、字幕动画或剪辑包装。
+```
+
+## 10. 浏览器登录与会话排错
+
+```text
+调用 yuntu-media-research，先不要执行付费采集，只检查当前单条研究所需的浏览器能力。
+目标页面：{{公开作品或作者主页链接}}。
+
+请告诉我当前使用的是：系统Chrome控制插件/MCP、Agent内置浏览器，还是没有浏览器；并判断它是否复用我现有的Chrome登录。
+如果页面需要登录，优先让我在自己的Chrome或当前独立浏览器中自行完成登录，不要索取密码、验证码、Cookie或Token。
+登录后只核对我授权的目标标签页，不要查看无关标签页或个人信息。
+最后返回browser_channel、session_mode、login_required和verification_status，再告诉我能否继续单条拆解。
 ```

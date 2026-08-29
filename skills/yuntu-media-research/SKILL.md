@@ -20,6 +20,7 @@ description: 使用RedFox实时与优质数据、可用浏览器完成选题调�
 9. 近3天热点判断必须优先调用广域/实时接口；优质库空结果不能写成“没有热度”。
 10. 最终报告必须使用真实采集数据；示例、占位符和模型编造数据不得进入可录屏产物。
 11. 单条作品先由浏览器核对；只有确实需要完整文案时才调用外部转写能力，不把FunASR源码、模型或依赖捆绑进Skill。
+12. 单条任务必须区分系统Chrome复用、宿主独立浏览器和无浏览器三种会话；页面需要登录时由用户自行登录，不读取或保存密码、Cookie和Token。
 
 ## 默认任务参数
 
@@ -123,6 +124,8 @@ python3 scripts/normalize.py --input raw/redfox/mcp.json --kind work \
 
 ### 4. 浏览器寻找与核对单条
 
+先读取`references/browser-session.md`完成浏览器会话预检，记录`browser_channel`、`session_mode`、`login_required`和`verification_status`。能连接用户已登录的系统Chrome时，可以在用户授权的目标标签页中核对；不能复用登录时使用宿主独立会话，或明确标记`login-blocked`/`unverified`。不得把RedFox字段存在写成页面已经核对。
+
 围绕当前任务寻找或抽查3至5条真实页面，保存可见标题、作者、发布时间、指标和页面URL。选题调研可以顺手查看页面中自然可见的评论，博主分析和内容结构拆解不以评论为前置条件。不得为了补齐字段额外接入评论API。
 
 内容结构拆解需要完整文案时，读取`references/local-transcription.md`。先检测用户本机是否已有FunASR；缺少时征得同意后从官方渠道安装或拉取到Skill之外的隔离目录，再对用户有权处理的本地媒体转写。只有本地方案不可用或用户明确选择服务端转写时，才核价并确认是否调用RedFox视频提文案。
@@ -191,6 +194,7 @@ python3 scripts/validate_output.py research-output/<task>
 - RedFox接入：`references/redfox.md`
 - 核心任务验收：`references/research-capabilities.md`
 - 通用Agent提示词：`references/agent-workflows.md`
+- 浏览器与登录会话：`references/browser-session.md`
 - 可选本地转写：`references/local-transcription.md`
 - 输出字段：`references/output-contract.md`
 - 证据与安全：`references/evidence-and-safety.md`

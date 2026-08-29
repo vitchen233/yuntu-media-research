@@ -633,7 +633,7 @@ https://github.com/vitchen233/yuntu-media-research
       <div class="section-title">
         <span class="kicker">CONTROL</span>
         <h2>能免费完成的先免费，<br>涉及费用和下载必须先确认</h2>
-        <p>Skill 会优先使用浏览器核对公开单条，再用 RedFox 补批量数据。确实需要完整语音文案时，优先调用本机 FunASR。</p>
+        <p>单条核对使用宿主 Agent 的浏览器，不是 RedFox。页面需要登录时，优先连接用户已登录的 Chrome；不能复用会话时，再使用宿主独立浏览器或明确标记未核对。</p>
       </div>
       <div class="grid-2" style="margin-top: 8mm;">
         <div class="panel">
@@ -664,13 +664,14 @@ https://github.com/vitchen233/yuntu-media-research
           <div class="steps">
             <div class="step"><div class="step-num">A</div><div><h3>找不到 Skill</h3><p>重新加载 Agent，确认安装目录和 SKILL.md 存在。</p></div></div>
             <div class="step"><div class="step-num">B</div><div><h3>没有 RedFox SDK</h3><p>运行 install.py --with-deps，或按 README 安装 requirements.txt。</p></div></div>
-            <div class="step"><div class="step-num">C</div><div><h3>搜索结果很杂</h3><p>增加必须命中的词组，并保留排除原因，不能删除噪声伪装准确率。</p></div></div>
+            <div class="step"><div class="step-num">C</div><div><h3>单条页面要求登录</h3><p>先检查能否连接已登录的系统 Chrome；否则在 Agent 独立浏览器中自行登录。两者都不可用时标记登录受阻。</p></div></div>
           </div>
         </div>
         <div>
           <h3>真实性边界</h3>
           <ul class="checklist">
             <li>不绕过登录、验证码、DRM 或付费墙</li>
+            <li>不索取密码、验证码、Cookie 或 Token</li>
             <li>不把空结果直接写成“没有热度”</li>
             <li>不把标题分析冒充逐字稿分析</li>
             <li>不把单条表现写成稳定规律</li>
@@ -697,6 +698,7 @@ https://github.com/vitchen233/yuntu-media-research
         <div class="step"><div class="step-num">03</div><div><h3>完整提示词库</h3><p>skills/yuntu-media-research/references/prompt-library.md</p></div></div>
         <div class="step"><div class="step-num">04</div><div><h3>本地转写说明</h3><p>skills/yuntu-media-research/references/local-transcription.md</p></div></div>
         <div class="step"><div class="step-num">05</div><div><h3>首次运行说明</h3><p>skills/yuntu-media-research/references/first-run.md</p></div></div>
+        <div class="step"><div class="step-num">06</div><div><h3>浏览器与登录会话</h3><p>skills/yuntu-media-research/references/browser-session.md</p></div></div>
       </div>
       <div class="prompt"><span class="accent">不知道该复制哪一条提示词时，直接说：</span>
 请打开 yuntu-media-research 的提示词库，结合我的创作者档案和当前任务，给我最匹配的一条完整提示词。先说明它会调用哪些能力、预计是否产生费用，再等待我确认。</div>

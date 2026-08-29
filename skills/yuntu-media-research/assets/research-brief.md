@@ -8,6 +8,10 @@
 - Time window:
 - RedFox transport: host MCP / local MCP / SDK
 - Data tier: realtime-wide / quality / browser-verified
+- Browser channel: system-chrome-control / host-browser / other / unavailable
+- Session mode: existing-login / isolated-session / no-login-needed / unknown
+- Login required: yes / no / unknown
+- Verification status: verified / partial / login-blocked / unverified
 - Browser capability:
 - Seed keywords or URLs:
 - Sample plan:
