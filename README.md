@@ -4,6 +4,14 @@
 
 用RedFoxHub实时/广域库、优质库和可用浏览器自动采集公开内容，生成选题调研、账号分析和单条内容结构拆解三种独立HTML报告，并在选题确认后生成有来源的短视频初稿。
 
+## 图文使用手册
+
+- [下载《Yuntu Media Research Skill 使用指南》PDF](docs/yuntu-media-research-user-guide.pdf)
+- [查看手册排版源文件](docs/user-guide.html)
+- [打开可复制提示词库](skills/yuntu-media-research/references/prompt-library.md)
+
+手册包含新电脑安装、首次初始化、主题选题调研、作者主页分析、单条视频拆解、结构报告、费用与隐私边界、常见排错和完整演示提示词。
+
 ## 解决什么
 
 很多“AI做自媒体”流程仍要求用户先准备链接或CSV。本Skill从赛道、博主或具体作品出发：RedFox广域库负责近3天实时发现，优质库负责账号和历史作品，Agent浏览器负责核对具体单条，最终形成可离线打开、适合录屏的研究结果。

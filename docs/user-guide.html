@@ -1,0 +1,668 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Yuntu Media Research Skill 使用指南</title>
+  <style>
+    :root {
+      --ink: #0d0b09;
+      --ink-soft: #17130f;
+      --ivory: #f5f1e9;
+      --paper: #fbf9f4;
+      --body: #514940;
+      --muted: #847b72;
+      --copper: #927b66;
+      --copper-dark: #6f5946;
+      --line: #ded7cc;
+      --teal: #248c82;
+      --purple: #7668d9;
+      --coral: #c86e5b;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; background: #d7d2ca; }
+    body {
+      color: var(--ink);
+      font-family: "Noto Sans SC", "Source Han Sans SC", "PingFang SC", sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    @page { size: A4; margin: 0; }
+
+    .page {
+      position: relative;
+      width: 210mm;
+      height: 297mm;
+      overflow: hidden;
+      page-break-after: always;
+      background: var(--paper);
+    }
+
+    .page:last-child { page-break-after: auto; }
+    .page.dark { background: var(--ink); color: var(--ivory); }
+
+    .sheet {
+      height: 100%;
+      padding: 18mm 17mm 16mm;
+    }
+
+    .page-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      min-height: 10mm;
+      padding-bottom: 5mm;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .page-header img { width: 43mm; height: auto; }
+    .page-header span { color: var(--muted); font-size: 8.5pt; }
+    .dark .page-header { border-color: rgba(245, 241, 233, .18); }
+    .dark .page-header span { color: rgba(245, 241, 233, .58); }
+
+    .footer {
+      position: absolute;
+      left: 17mm;
+      right: 17mm;
+      bottom: 8mm;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      color: var(--muted);
+      font-size: 7.5pt;
+    }
+
+    .footer b { color: var(--copper-dark); font-weight: 600; }
+    .dark .footer { color: rgba(245, 241, 233, .48); }
+    .dark .footer b { color: rgba(245, 241, 233, .76); }
+
+    h1, h2, h3, p { margin: 0; }
+    h1, h2 {
+      font-family: "Noto Serif SC", "Source Han Serif SC", "Songti SC", serif;
+      font-weight: 650;
+      letter-spacing: 0;
+    }
+
+    h2 { font-size: 25pt; line-height: 1.28; }
+    h3 { font-size: 12.5pt; line-height: 1.45; font-weight: 650; }
+    p, li { font-size: 9.5pt; line-height: 1.78; }
+    strong { font-weight: 650; }
+
+    .kicker {
+      display: inline-flex;
+      align-items: center;
+      min-height: 7mm;
+      padding: 0 3mm;
+      border: 1px solid var(--line);
+      border-radius: 2mm;
+      color: var(--copper-dark);
+      font-size: 8pt;
+      font-weight: 650;
+    }
+
+    .dark .kicker {
+      border-color: rgba(245, 241, 233, .2);
+      color: #c8b7a7;
+    }
+
+    .section-title { margin-top: 10mm; }
+    .section-title h2 { margin-top: 4mm; }
+    .section-title p { max-width: 150mm; margin-top: 4mm; color: var(--body); }
+    .dark .section-title p { color: rgba(245, 241, 233, .66); }
+
+    .rule { height: 1px; margin: 7mm 0; background: var(--line); }
+    .dark .rule { background: rgba(245, 241, 233, .16); }
+
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 7mm; }
+    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5mm; }
+
+    .panel {
+      padding: 5.5mm;
+      border: 1px solid var(--line);
+      border-radius: 3mm;
+      background: #fff;
+    }
+
+    .panel h3 + p { margin-top: 2.5mm; color: var(--body); }
+    .panel p + p { margin-top: 2.5mm; }
+    .panel.flat { border-radius: 0; background: transparent; }
+    .panel.dark-panel {
+      border-color: rgba(245, 241, 233, .15);
+      background: #15120f;
+    }
+    .dark-panel p { color: rgba(245, 241, 233, .66); }
+
+    .metric {
+      padding-top: 4mm;
+      border-top: 1px solid var(--line);
+    }
+    .metric b { display: block; color: var(--copper-dark); font-size: 18pt; }
+    .metric span { display: block; margin-top: 1mm; color: var(--muted); font-size: 8pt; }
+
+    .steps { display: grid; gap: 3mm; margin-top: 7mm; }
+    .step {
+      display: grid;
+      grid-template-columns: 12mm 1fr;
+      gap: 4mm;
+      align-items: start;
+      padding: 4mm 0;
+      border-bottom: 1px solid var(--line);
+    }
+    .step:last-child { border-bottom: 0; }
+    .step-num {
+      display: grid;
+      place-items: center;
+      width: 10mm;
+      height: 10mm;
+      border: 1px solid var(--copper);
+      border-radius: 50%;
+      color: var(--copper-dark);
+      font: 650 8pt "IBM Plex Mono", monospace;
+    }
+    .step p { margin-top: 1.5mm; color: var(--body); }
+
+    .prompt {
+      margin-top: 5mm;
+      padding: 5mm;
+      border: 1px solid #29231e;
+      border-radius: 3mm;
+      background: #15120f;
+      color: #eee7dc;
+      font: 8pt/1.68 "IBM Plex Mono", "SFMono-Regular", monospace;
+      white-space: pre-wrap;
+    }
+
+    .prompt .accent { color: #d1a376; }
+    .prompt.compact { font-size: 7.4pt; line-height: 1.56; }
+
+    .callout {
+      margin-top: 5mm;
+      padding: 4mm 5mm;
+      border: 1px solid rgba(146, 123, 102, .45);
+      border-radius: 2.5mm;
+      background: #f1ece4;
+    }
+    .callout p { color: #4d4238; }
+    .callout strong { color: var(--copper-dark); }
+
+    .report-shot {
+      position: relative;
+      overflow: hidden;
+      border: 1px solid #2a2520;
+      border-radius: 3mm;
+      background: #090807;
+      box-shadow: 0 5mm 13mm rgba(25, 19, 15, .14);
+    }
+    .report-shot img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: top; }
+    .report-shot.large { height: 89mm; }
+    .report-shot.medium { height: 66mm; }
+    .report-shot.small { height: 49mm; }
+
+    .caption { margin-top: 2mm; color: var(--muted); font-size: 7.5pt; line-height: 1.5; }
+
+    .flow {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 2mm;
+      margin-top: 7mm;
+    }
+    .flow-item {
+      position: relative;
+      min-height: 29mm;
+      padding: 4mm 3mm;
+      border-top: 1px solid var(--copper);
+      background: #f3eee6;
+    }
+    .flow-item b { display: block; color: var(--copper-dark); font-size: 8.5pt; }
+    .flow-item span { display: block; margin-top: 2mm; color: var(--body); font-size: 7.5pt; line-height: 1.5; }
+
+    .checklist { margin: 4mm 0 0; padding: 0; list-style: none; }
+    .checklist li { position: relative; padding-left: 6mm; margin-top: 2.2mm; color: var(--body); }
+    .checklist li::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 2.3mm;
+      width: 2.4mm;
+      height: 2.4mm;
+      border-radius: 50%;
+      background: var(--copper);
+    }
+
+    .tag-row { display: flex; flex-wrap: wrap; gap: 2mm; margin-top: 4mm; }
+    .tag {
+      padding: 1.6mm 2.8mm;
+      border: 1px solid var(--line);
+      border-radius: 2mm;
+      color: var(--body);
+      font-size: 7.5pt;
+    }
+
+    .cover .sheet { padding: 20mm 18mm; }
+    .cover-brand { width: 62mm; }
+    .cover-grid {
+      position: absolute;
+      inset: 0;
+      opacity: .28;
+      background-image: linear-gradient(rgba(245,241,233,.06) 1px, transparent 1px), linear-gradient(90deg,rgba(245,241,233,.06) 1px, transparent 1px);
+      background-size: 28mm 28mm;
+      mask-image: linear-gradient(180deg, #000 0%, #000 60%, transparent 92%);
+    }
+    .cover-main { position: relative; z-index: 1; margin-top: 45mm; }
+    .cover-main h1 { max-width: 165mm; margin-top: 7mm; font-size: 35pt; line-height: 1.22; }
+    .cover-main p { max-width: 130mm; margin-top: 8mm; color: rgba(245,241,233,.66); font-size: 11pt; line-height: 1.9; }
+    .cover-meta { position: absolute; z-index: 1; left: 18mm; bottom: 22mm; display: flex; gap: 4mm; }
+    .cover-meta span {
+      padding: 2.5mm 3.5mm;
+      border: 1px solid rgba(245,241,233,.17);
+      border-radius: 2mm;
+      color: rgba(245,241,233,.7);
+      font-size: 8pt;
+    }
+
+    .hero-number {
+      margin-top: 8mm;
+      color: var(--copper-dark);
+      font-family: "Noto Serif SC", serif;
+      font-size: 48pt;
+      line-height: 1;
+    }
+
+    .contact-page .sheet { display: flex; flex-direction: column; }
+    .contact-page .contact-main {
+      flex: 1;
+      display: grid;
+      place-content: center;
+      text-align: center;
+    }
+    .contact-page .owl { width: 38mm; margin: 0 auto 9mm; }
+    .contact-page h2 { font-size: 31pt; }
+    .contact-page .lead { max-width: 135mm; margin: 6mm auto 0; color: rgba(245,241,233,.66); font-size: 11pt; line-height: 1.85; }
+    .wechat-box {
+      width: 118mm;
+      margin: 12mm auto 0;
+      padding: 8mm;
+      border: 1px solid rgba(245,241,233,.22);
+      border-radius: 4mm;
+      background: #15120f;
+    }
+    .wechat-box span { display: block; color: rgba(245,241,233,.58); font-size: 8.5pt; }
+    .wechat-box strong { display: block; margin-top: 3mm; color: #f5f1e9; font-size: 23pt; letter-spacing: 0; }
+    .wechat-box small { display: block; margin-top: 3mm; color: #c8b7a7; font-size: 8pt; }
+    .contact-links { margin-top: 9mm; color: rgba(245,241,233,.66); font-size: 8.5pt; line-height: 1.8; }
+
+    a { color: inherit; text-decoration: none; }
+  </style>
+</head>
+<body>
+  <section class="page dark cover">
+    <div class="cover-grid"></div>
+    <div class="sheet">
+      <img class="cover-brand" src="assets/yuntu-logo-dark.png" alt="Yuntu Tech 云途AGI科技">
+      <div class="cover-main">
+        <span class="kicker">OPEN SOURCE SKILL GUIDE</span>
+        <h1>Yuntu Media Research<br>自媒体研究 Skill 使用指南</h1>
+        <p>从主题发现、账号分析到单条视频拆解，把公开数据、浏览器核对和本地转写整理成可追溯、可录屏的独立报告。</p>
+      </div>
+      <div class="cover-meta">
+        <span>适用 Codex / WorkBuddy / Claude Code</span>
+        <span>Skill 版本 1.1.1</span>
+        <span>2026.08</span>
+      </div>
+    </div>
+    <div class="footer"><b>YUNTU MEDIA RESEARCH</b><span>用户使用手册</span></div>
+  </section>
+
+  <section class="page">
+    <div class="sheet">
+      <header class="page-header"><img src="assets/yuntu-logo-nav.png" alt="Yuntu Tech"><span>01 / 先看懂它</span></header>
+      <div class="section-title">
+        <span class="kicker">60 秒概览</span>
+        <h2>它不是替你“凭感觉想题”，<br>而是把研究过程保存下来</h2>
+        <p>Yuntu Media Research 是一个面向内容创作者的开源 Skill。它调用 Agent 已有的浏览器能力，并按需连接 RedFox，完成公开内容采集、字段统一、证据保留与 HTML 报告生成。</p>
+      </div>
+      <div class="grid-3" style="margin-top: 9mm;">
+        <div class="metric"><b>01</b><span>主题选题调研</span></div>
+        <div class="metric"><b>02</b><span>作者主页分析</span></div>
+        <div class="metric"><b>03</b><span>单条内容拆解</span></div>
+      </div>
+      <div class="grid-2" style="margin-top: 9mm; align-items: start;">
+        <div>
+          <div class="panel flat">
+            <h3>你会得到什么</h3>
+            <ul class="checklist">
+              <li>原始响应与公开来源清单</li>
+              <li>统一后的作品、作者和互动数据</li>
+              <li>可回指证据的候选选题与判断</li>
+              <li>可双击打开、适合录屏的独立 HTML</li>
+              <li>失败回退、费用记录与样本限制</li>
+            </ul>
+          </div>
+          <div class="callout">
+            <p><strong>核心原则：</strong>页面事实、API 字段、计算、推断和假设分开。没有证据的地方直接标记，而不是让模型补齐。</p>
+          </div>
+        </div>
+        <div>
+          <div class="report-shot medium"><img src="assets/report-topic.png" alt="选题调研报告示例"></div>
+          <div class="caption">真实报告示例：近 3 天选题调研首页。数据、时间窗和采集层级会随任务变化。</div>
+        </div>
+      </div>
+      <div class="tag-row">
+        <span class="tag">开源 MIT</span><span class="tag">浏览器核对</span><span class="tag">RedFox 可选</span><span class="tag">FunASR 可选</span><span class="tag">本地产物</span>
+      </div>
+    </div>
+    <div class="footer"><b>YUNTU MEDIA RESEARCH</b><span>02</span></div>
+  </section>
+
+  <section class="page">
+    <div class="sheet">
+      <header class="page-header"><img src="assets/yuntu-logo-nav.png" alt="Yuntu Tech"><span>02 / 新电脑安装</span></header>
+      <div class="section-title">
+        <span class="kicker">INSTALL</span>
+        <h2>把仓库链接交给 Agent，<br>让它完成安装与自检</h2>
+        <p>推荐让 Agent 先读取仓库说明，再调用项目自带的安装器。不要把 Skill 复制进正在创作的内容项目，也不要在安装阶段提前下载 FunASR 模型。</p>
+      </div>
+      <div class="steps">
+        <div class="step"><div class="step-num">1</div><div><h3>发送安装提示词</h3><p>Agent 会识别当前宿主，并安装到对应的标准 Skills 目录。</p></div></div>
+        <div class="step"><div class="step-num">2</div><div><h3>安装 RedFox SDK 依赖</h3><p>这是结构化数据通道。尚未配置 Key 时只完成安装，不产生付费请求。</p></div></div>
+        <div class="step"><div class="step-num">3</div><div><h3>运行 doctor.py</h3><p>只返回是否就绪，不显示 API Key。宿主需要重载时，Agent 必须明确提示。</p></div></div>
+      </div>
+      <div class="prompt"><span class="accent">请从下面的公开 GitHub 仓库安装 yuntu-media-research：</span>
+https://github.com/vitchen233/yuntu-media-research
+
+请先读取仓库 README、THIRD_PARTY_NOTICES 和 Skill 正文，确认安装目标是当前 Agent 的标准 Skills 目录。然后使用仓库提供的 install.py 完成安装，并安装 requirements.txt 中的 RedFox SDK 依赖；不要把 Skill 复制进我当前的内容项目，也不要安装 FunASR 或下载模型。
+
+安装后运行 Skill 自带的 doctor.py --json，只告诉我各项是否就绪，不得显示任何 API Key。需要重载或重启时，请明确告诉我下一步怎么做。</div>
+      <div class="callout"><p><strong>安装地址：</strong>github.com/vitchen233/yuntu-media-research<br><strong>验证标准：</strong>doctor 返回档案状态、SDK 状态和 Key 状态；不能用“安装成功”替代真实检查。</p></div>
+    </div>
+    <div class="footer"><b>安装只做一次</b><span>03</span></div>
+  </section>
+
+  <section class="page">
+    <div class="sheet">
+      <header class="page-header"><img src="assets/yuntu-logo-nav.png" alt="Yuntu Tech"><span>03 / 首次初始化</span></header>
+      <div class="section-title">
+        <span class="kicker">PROFILE + REDFOX</span>
+        <h2>先告诉 Skill 你是谁，<br>再配置数据能力</h2>
+        <p>初始化分两步。创作者档案决定“替谁研究”；RedFox 配置决定“能否批量采集”。两者分开保存，不会写入公开仓库。</p>
+      </div>
+      <div class="flow">
+        <div class="flow-item"><b>身份</b><span>你是谁，具有什么内容背景</span></div>
+        <div class="flow-item"><b>赛道</b><span>长期研究什么领域</span></div>
+        <div class="flow-item"><b>受众</b><span>为谁解决什么问题</span></div>
+        <div class="flow-item"><b>目标</b><span>涨粉、搜索或资料领取</span></div>
+        <div class="flow-item"><b>边界</b><span>哪些工具、承诺不采用</span></div>
+      </div>
+      <div class="grid-2" style="margin-top: 8mm;">
+        <div class="panel">
+          <h3>步骤 1：创作者档案</h3>
+          <p>最低必填是赛道、目标受众和主要平台。当前任务输入优先于长期档案，因此换一期主题不需要反复修改人设。</p>
+          <p><strong>默认位置</strong><br>macOS / Linux：~/.config/yuntu-media-research/<br>Windows：%APPDATA%\yuntu-media-research\</p>
+        </div>
+        <div class="panel">
+          <h3>步骤 2：RedFox API Key</h3>
+          <p>Key 由用户在本机终端隐藏输入。不要粘贴到聊天，不要写入截图、报告、临时问卷或 GitHub。</p>
+          <p><strong>只有执行采集才可能产生费用。</strong><br>采集前先生成请求计划和费用估算，等待用户确认。</p>
+        </div>
+      </div>
+      <div class="prompt"><span class="accent">第一次使用 yuntu-media-research，请开始初始化。</span>
+先通过简短问卷建立我的创作者档案：身份、赛道、平台、目标受众及其问题、内容目标、优先工具、交付物和边界。保存到用户级 creator-profile.json，不要写进公开仓库。
+
+第二步检查 Python、RedFox SDK 和 API Key。不要让我在聊天里粘贴 API Key，也不要显示密钥；需要 Key 时引导我在本机隐藏输入。两步完成后，重新运行 doctor.py 并告诉我现在能做哪三类研究。</div>
+      <div class="callout"><p><strong>优先级：</strong>本次任务明确输入 &gt; creator-profile.json &gt; Skill 默认值。单期热点、临时标题和一次性工具偏好不会污染长期档案。</p></div>
+    </div>
+    <div class="footer"><b>档案与密钥都留在本机</b><span>04</span></div>
+  </section>
+
+  <section class="page">
+    <div class="sheet">
+      <header class="page-header"><img src="assets/yuntu-logo-nav.png" alt="Yuntu Tech"><span>04 / 根据主题找选题</span></header>
+      <div class="section-title">
+        <span class="kicker">TOPIC RESEARCH</span>
+        <h2>先看近 3 天正在发生什么，<br>再给出 3 条能拍的候选</h2>
+        <p>适合“今天讲什么”“某个工具还有没有热度”“这个主题的观众到底在问什么”。Skill 会区分创作者集中供给与观众真实需求。</p>
+      </div>
+      <div class="report-shot large" style="margin-top: 7mm;"><img src="assets/report-topic.png" alt="选题调研报告"></div>
+      <div class="prompt compact"><span class="accent">调用 yuntu-media-research，运行 topic-research。</span>
+研究主题：{{主题}}；平台：{{平台}}；观众：{{具体人群}}；目标：{{涨粉 / 搜索流量 / 开源 Skill 领取}}。
+
+自动采集近 3 天公开作品，区分“很多创作者在讲”和“观众真的在问”。先给采集计划、预计请求数和费用，等待我确认后执行。最终只推荐 3 条可真实录屏的选题，每条附目标人群、具体任务、开头结果、原料获取方式、操作画面、1 至 3 条对标链接、交付钩子、证据和样本限制。保存原始来源与独立 HTML。</div>
+      <div class="grid-3" style="margin-top: 5mm;">
+        <div class="panel flat"><h3>结果先出现</h3><p>每条候选必须说明开头能展示什么真实完成态。</p></div>
+        <div class="panel flat"><h3>任务要具体</h3><p>不推荐“让 AI 自动办公”这类无法直接实拍的空题。</p></div>
+        <div class="panel flat"><h3>链接可回看</h3><p>对标作品和数据来源会进入来源清单与报告。</p></div>
+      </div>
+    </div>
+    <div class="footer"><b>topic-research</b><span>05</span></div>
+  </section>
+
+  <section class="page">
+    <div class="sheet">
+      <header class="page-header"><img src="assets/yuntu-logo-nav.png" alt="Yuntu Tech"><span>05 / 拆解作者主页</span></header>
+      <div class="section-title">
+        <span class="kicker">CREATOR ANALYSIS</span>
+        <h2>别只盯一条爆款，<br>先建立账号自己的表现基线</h2>
+        <p>适合研究对标博主、内容支柱和反复有效的钩子。报告会同时比较最新作品与账号内高表现作品，避免只挑几条凭感觉总结。</p>
+      </div>
+      <div class="report-shot large" style="margin-top: 7mm;"><img src="assets/report-creator.png" alt="账号分析报告"></div>
+      <div class="prompt compact"><span class="accent">调用 yuntu-media-research，运行 creator-analysis。</span>
+分析对象：{{作者名称或公开主页链接}}。我的赛道：{{赛道}}；我想借鉴：{{选题 / 钩子 / 教学方式 / 交付钩子}}。
+
+自动采集最新作品和高表现作品，建立账号内基线。分析账号定位、核心人群、内容支柱、发布节奏、时长、互动基线、钩子、证明方式与转化路径；逐条拆解 3 条高表现作品，并说明我能借鉴和不应照搬的部分。只有标题时不要写成已核验逐字稿。保存原始数据、report.json 和独立 HTML。</div>
+      <div class="callout"><p><strong>评论不是前置条件。</strong>主页分析主要依赖公开主页、作品列表、账号内基线和代表作品。没有评论不能成为中断分析的理由。</p></div>
+    </div>
+    <div class="footer"><b>creator-analysis</b><span>06</span></div>
+  </section>
+
+  <section class="page">
+    <div class="sheet">
+      <header class="page-header"><img src="assets/yuntu-logo-nav.png" alt="Yuntu Tech"><span>06 / 拆解单条视频</span></header>
+      <div class="section-title">
+        <span class="kicker">CONTENT STRUCTURE</span>
+        <h2>从“他说了什么”，<br>走到“这段话为什么放在这里”</h2>
+        <p>先用浏览器核对页面与画面，再按时间轴拆解开头承诺、第一份证明、动作推进、注意力变化和结尾承接。</p>
+      </div>
+      <div class="report-shot large" style="margin-top: 7mm;"><img src="assets/report-structure.png" alt="单条内容结构拆解报告"></div>
+      <div class="prompt compact"><span class="accent">调用 yuntu-media-research，运行 content-structure-analysis。</span>
+公开作品链接：{{链接}}；我准备制作的主题：{{主题}}。
+
+先用浏览器核对页面、章节、可见字幕和画面。需要完整文案时优先检测本地 FunASR；缺少时先征得我同意，再安装到 Skill 之外的隔离环境。只有本地方案不可用时，才说明 RedFox 转写费用并等待确认。
+
+按时间轴拆解开头承诺、第一份证明、段落作用、A-roll / 录屏 / 结果页比例、注意力曲线、画面任务、证明链与不可照搬部分，生成独立 HTML，不在公开报告全文转载机器转写。</div>
+      <div class="callout"><p><strong>FunASR 不在 Skill 内。</strong>它只是按需调用的外部开源能力。源码、虚拟环境、模型权重和媒体文件都保存在 Skill 仓库之外。</p></div>
+    </div>
+    <div class="footer"><b>content-structure-analysis</b><span>07</span></div>
+  </section>
+
+  <section class="page">
+    <div class="sheet">
+      <header class="page-header"><img src="assets/yuntu-logo-nav.png" alt="Yuntu Tech"><span>07 / 提炼结构与完整演示</span></header>
+      <div class="section-title">
+        <span class="kicker">REUSE, NOT COPY</span>
+        <h2>复用已经采集的证据，<br>提炼成自己的内容结构</h2>
+        <p>主页和单条分析完成后，不必再次付费采集。Skill 可以直接读取已保存的原始数据、来源清单、转写和报告 JSON。</p>
+      </div>
+      <div class="grid-2" style="margin-top: 5mm;">
+        <div class="panel">
+          <h3>结构报告应该回答</h3>
+          <ul class="checklist">
+            <li>前 5 秒展示什么完成结果</li>
+            <li>第一份证明何时出现</li>
+            <li>每段解决哪个观众问题</li>
+            <li>口播、录屏、结果页如何切换</li>
+            <li>哪些来自多条样本，哪些只是推断</li>
+            <li>改成你的主题后如何重新组织</li>
+          </ul>
+        </div>
+        <div class="panel">
+          <h3>完整演示的五步链路</h3>
+          <div class="steps" style="margin-top: 2mm;">
+            <div class="step"><div class="step-num">1</div><div><p>主题选题调研</p></div></div>
+            <div class="step"><div class="step-num">2</div><div><p>选择代表作者</p></div></div>
+            <div class="step"><div class="step-num">3</div><div><p>拆解高表现单条</p></div></div>
+            <div class="step"><div class="step-num">4</div><div><p>提炼可复用结构</p></div></div>
+            <div class="step"><div class="step-num">5</div><div><p>生成统一报告入口</p></div></div>
+          </div>
+        </div>
+      </div>
+      <div class="prompt compact"><span class="accent">调用 yuntu-media-research。</span>
+主页分析目录：{{路径}}；单条拆解目录：{{路径}}；我的主题：{{主题}}；目标受众：{{人群}}。
+
+优先读取两个目录中已保存的原始数据、来源清单、report.json 和转写结果；证据足够时不要重复调用 RedFox。提炼适用人群、前 5 秒结果、段落作用、实际画面、证明材料、注意力曲线、不可照搬部分，以及改成我主题后的标题、开头、顺序和交付钩子。
+
+按 content-structure-analysis 合同生成 report.json、reusable_structure.md 和可双击打开的 HTML。每个判断回指来源，没有证据的地方标明推断，不生成完整口播稿。</div>
+      <div class="callout"><p><strong>拍演示时：</strong>先让 Agent 每完成一步都告诉你产物路径，再继续下一步。这样既能控制费用，也方便录制每个可见结果。</p></div>
+    </div>
+    <div class="footer"><b>研究结果可以继续长大</b><span>08</span></div>
+  </section>
+
+  <section class="page">
+    <div class="sheet">
+      <header class="page-header"><img src="assets/yuntu-logo-nav.png" alt="Yuntu Tech"><span>08 / 如何阅读报告</span></header>
+      <div class="section-title">
+        <span class="kicker">REPORT ANATOMY</span>
+        <h2>报告不是装饰，<br>每一层都对应一种证据</h2>
+        <p>三类报告使用相同的追溯原则，但回答不同的问题。截图只展示首页，完整 HTML 还包含图表、样本、来源、失败记录和限制。</p>
+      </div>
+      <div class="grid-3" style="margin-top: 8mm;">
+        <div>
+          <div class="report-shot small"><img src="assets/report-topic.png" alt="选题报告"></div>
+          <div class="caption"><strong>选题报告</strong><br>时间窗、搜索信号、候选与流量入口。</div>
+        </div>
+        <div>
+          <div class="report-shot small"><img src="assets/report-creator.png" alt="作者报告"></div>
+          <div class="caption"><strong>作者报告</strong><br>账号内基线、内容支柱、钩子与转化。</div>
+        </div>
+        <div>
+          <div class="report-shot small"><img src="assets/report-structure.png" alt="结构报告"></div>
+          <div class="caption"><strong>结构报告</strong><br>时间轴、注意力、画面与证明链。</div>
+        </div>
+      </div>
+      <div class="rule"></div>
+      <div class="grid-2">
+        <div>
+          <h3>先看报告顶部</h3>
+          <ul class="checklist">
+            <li>生成时间与研究时间窗</li>
+            <li>平台和数据采集层级</li>
+            <li>样本数量与过滤条件</li>
+            <li>浏览器是否完成单条核对</li>
+          </ul>
+        </div>
+        <div>
+          <h3>再看结论旁边的证据</h3>
+          <ul class="checklist">
+            <li>来源 URL 是否可以打开</li>
+            <li>指标是页面事实还是 API 字段</li>
+            <li>比例与排名是否属于计算结果</li>
+            <li>判断是否明确标记为推断</li>
+          </ul>
+        </div>
+      </div>
+      <div class="callout" style="margin-top: 9mm;"><p><strong>不要把漂亮报告当作正确性的证明。</strong>真正的验收标准是：样本可追溯、字段不补造、失败有记录、判断能回到来源。</p></div>
+      <div class="panel flat" style="margin-top: 7mm;">
+        <h3>建议保存的核心文件</h3>
+        <div class="tag-row"><span class="tag">brief.json</span><span class="tag">source_manifest.jsonl</span><span class="tag">works.jsonl</span><span class="tag">report.json</span><span class="tag">report.html</span><span class="tag">fallback_log.jsonl</span></div>
+      </div>
+    </div>
+    <div class="footer"><b>可视化只是入口，来源才是底座</b><span>09</span></div>
+  </section>
+
+  <section class="page">
+    <div class="sheet">
+      <header class="page-header"><img src="assets/yuntu-logo-nav.png" alt="Yuntu Tech"><span>09 / 费用、权限与失败边界</span></header>
+      <div class="section-title">
+        <span class="kicker">CONTROL</span>
+        <h2>能免费完成的先免费，<br>涉及费用和下载必须先确认</h2>
+        <p>Skill 会优先使用浏览器核对公开单条，再用 RedFox 补批量数据。确实需要完整语音文案时，优先调用本机 FunASR。</p>
+      </div>
+      <div class="grid-2" style="margin-top: 8mm;">
+        <div class="panel">
+          <h3>允许自动执行</h3>
+          <ul class="checklist">
+            <li>读取公开仓库与 Skill 文件</li>
+            <li>浏览器打开并核对公开页面</li>
+            <li>生成采集计划和费用估算</li>
+            <li>读取用户已经保存的非敏感档案</li>
+            <li>生成本地 JSON、Markdown 和 HTML</li>
+          </ul>
+        </div>
+        <div class="panel">
+          <h3>必须先询问用户</h3>
+          <ul class="checklist">
+            <li>执行会产生费用的 RedFox 请求</li>
+            <li>安装 FunASR、Torch 或下载模型</li>
+            <li>改用 RedFox 服务端视频转写</li>
+            <li>处理用户尚未授权的本地媒体</li>
+            <li>扩大时间窗、平台或采集样本</li>
+          </ul>
+        </div>
+      </div>
+      <div class="rule"></div>
+      <div class="grid-2">
+        <div>
+          <h3>常见问题</h3>
+          <div class="steps">
+            <div class="step"><div class="step-num">A</div><div><h3>找不到 Skill</h3><p>重新加载 Agent，确认安装目录和 SKILL.md 存在。</p></div></div>
+            <div class="step"><div class="step-num">B</div><div><h3>没有 RedFox SDK</h3><p>运行 install.py --with-deps，或按 README 安装 requirements.txt。</p></div></div>
+            <div class="step"><div class="step-num">C</div><div><h3>搜索结果很杂</h3><p>增加必须命中的词组，并保留排除原因，不能删除噪声伪装准确率。</p></div></div>
+          </div>
+        </div>
+        <div>
+          <h3>真实性边界</h3>
+          <ul class="checklist">
+            <li>不绕过登录、验证码、DRM 或付费墙</li>
+            <li>不把空结果直接写成“没有热度”</li>
+            <li>不把标题分析冒充逐字稿分析</li>
+            <li>不把单条表现写成稳定规律</li>
+            <li>不声称使用 Skill 必然涨粉或获得流量</li>
+          </ul>
+          <div class="callout"><p><strong>需要排错帮助：</strong>添加微信 <strong>TQwendao</strong>，备注“Skill”，并说明你使用的 Agent、系统和 doctor 返回的状态。不要发送 API Key。</p></div>
+        </div>
+      </div>
+    </div>
+    <div class="footer"><b>付费调用前必须确认</b><span>10</span></div>
+  </section>
+
+  <section class="page">
+    <div class="sheet">
+      <header class="page-header"><img src="assets/yuntu-logo-nav.png" alt="Yuntu Tech"><span>10 / 资源索引</span></header>
+      <div class="section-title">
+        <span class="kicker">KEEP THESE LINKS</span>
+        <h2>仓库、提示词和报告，<br>都从这里继续</h2>
+        <p>建议把本页和下一页一起发给第一次使用的朋友。完整提示词保存在仓库内，Agent 也可以按当前任务自动推荐最匹配的一条。</p>
+      </div>
+      <div class="steps" style="margin-top: 8mm;">
+        <div class="step"><div class="step-num">01</div><div><h3>GitHub 开源仓库</h3><p>github.com/vitchen233/yuntu-media-research</p></div></div>
+        <div class="step"><div class="step-num">02</div><div><h3>完整提示词库</h3><p>skills/yuntu-media-research/references/prompt-library.md</p></div></div>
+        <div class="step"><div class="step-num">03</div><div><h3>本地转写说明</h3><p>skills/yuntu-media-research/references/local-transcription.md</p></div></div>
+        <div class="step"><div class="step-num">04</div><div><h3>首次运行说明</h3><p>skills/yuntu-media-research/references/first-run.md</p></div></div>
+        <div class="step"><div class="step-num">05</div><div><h3>第三方与许可证</h3><p>LICENSE 与 THIRD_PARTY_NOTICES.md</p></div></div>
+      </div>
+      <div class="prompt"><span class="accent">不知道该复制哪一条提示词时，直接说：</span>
+请打开 yuntu-media-research 的提示词库，结合我的创作者档案和当前任务，给我最匹配的一条完整提示词。先说明它会调用哪些能力、预计是否产生费用，再等待我确认。</div>
+    </div>
+    <div class="footer"><b>MIT 开源 · 第三方能力以各自官方条款为准</b><span>11</span></div>
+  </section>
+
+  <section class="page dark contact-page">
+    <div class="sheet">
+      <header class="page-header"><img src="assets/yuntu-logo-dark.png" alt="Yuntu Tech"><span>继续学习 AI</span></header>
+      <div class="contact-main">
+        <img class="owl" src="assets/yuntu-owl-mark.png" alt="云途标识">
+        <span class="kicker">LEARN WITH YUNTU</span>
+        <h2 style="margin-top: 7mm;">别只让 AI 回答问题，<br>让它真正完成研究任务</h2>
+        <p class="lead">我会继续公开更多面向内容创作者的 AI 实战流程、Skills 和小工具。遇到安装、配置或使用问题，也可以带着具体任务来交流。</p>
+        <div class="wechat-box">
+          <span>添加微信，跟着云途学习 AI</span>
+          <strong>TQwendao</strong>
+          <small>添加时备注：Skill</small>
+        </div>
+        <div class="contact-links">GitHub：github.com/vitchen233/yuntu-media-research<br>品牌：Yuntu Tech · 云途AGI科技</div>
+      </div>
+    </div>
+    <div class="footer"><b>YUNTU TECH</b><span>12</span></div>
+  </section>
+</body>
+</html>
