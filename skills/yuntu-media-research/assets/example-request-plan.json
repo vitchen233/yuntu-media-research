@@ -1,0 +1,9 @@
+{
+  "items": [
+    {
+      "operation": "douyin_search_ai_articles",
+      "requests": 1,
+      "price_class": "quality"
+    }
+  ]
+}

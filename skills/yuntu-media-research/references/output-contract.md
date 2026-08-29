@@ -1,5 +1,13 @@
 # 输出合同
 
+## capability_catalog.json
+
+每个操作至少包含：`operation_id`、`transport`、`platform`、`capabilities`、`parameters`、`description`和`price_class`。`price_class`无法从官方工具说明识别时必须为`unknown`。
+
+## request_plan.json
+
+必填：`items`。每项包含`operation`、`requests`、`price_class`；只有当前端点文档已核对时才可写`unit_price`。估价必须同时输出未知价格操作。
+
 ## brief.json
 
 必填：`task_id`、`creator_niche`、`target_audience`、`platforms`、`time_window`、`goal`、`delivery_asset`、`material_input_mode`、`queries`、`started_at`、`sample_plan`、`stop_conditions`。

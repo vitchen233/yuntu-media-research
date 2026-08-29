@@ -5,7 +5,7 @@ description: 使用红狐数据与可用浏览器自动采集近期公开内容�
 
 # 云途自媒体研究
 
-把“今天讲什么”推进成可拍、可核验、可交付的内容项目。RedFoxHub是默认结构化数据源，浏览器用于登录态抽查、补评论和验证真实页面。
+把“今天讲什么”推进成可拍、可核验、可交付的内容项目。RedFoxHub是默认结构化数据源；优先使用宿主已连接的RedFox MCP，否则使用官方Python SDK。浏览器用于登录态抽查、补评论和验证真实页面。
 
 ## 核心边界
 
@@ -35,14 +35,25 @@ description: 使用红狐数据与可用浏览器自动采集近期公开内容�
 
 创建 `research-output/<task>/brief.json`，包含任务、受众、平台、时间窗、查询词、样本计划、预计调用数、预算边界和停止条件。字段见 `references/output-contract.md`。
 
-### 2. 规划RedFox采集
+### 2. 发现RedFox能力并规划采集
 
 先运行：
 
 ```bash
-python3 scripts/redfox_collect.py status
-python3 scripts/redfox_collect.py plan --config assets/example-task.json
+python3 scripts/redfox_mcp.py status
+python3 scripts/redfox_catalog.py status
+python3 scripts/redfox_catalog.py discover --platform douyin --capability search
 ```
+
+宿主已配置`mcp__redfox__*`工具时直接读取当前工具目录。独立运行时可用`uvx redfox-mcp`连接官方stdio桥；启动器不可用则使用SDK目录，不因单一通道失败而停止。
+
+调用前生成`request_plan.json`并估价：
+
+```bash
+python3 scripts/estimate_cost.py --plan assets/example-request-plan.json
+```
+
+`price_class`只从当前官方说明识别为`quality`、`realtime`或`unknown`。未知价格必须显示，不得用平均价填补。
 
 没有密钥时停止API调用，并说明需要用户在RedFox控制台自行创建或配置。推荐运行 `python3 scripts/configure_key.py`，以隐藏输入方式写入Git忽略的本地 `.env`。不得代用户读取、显示或上传密钥。
 
@@ -53,7 +64,7 @@ python3 scripts/redfox_collect.py plan --config assets/example-task.json
 - 账号作品与详情：建立账号内基线
 - 视频提文案：只对少量确定的高价值对标使用
 
-当前RedFox能力、字段和成本边界见 `references/redfox.md`。接口可能变化，运行前以官方文档为准。
+当前RedFox能力、字段和成本边界见 `references/redfox.md`。完整研究能力与验收见`references/research-capabilities.md`。接口可能变化，运行前以官方文档为准。
 
 ### 3. 执行采集与保留原始响应
 
@@ -63,6 +74,17 @@ python3 scripts/redfox_collect.py collect --config assets/example-task.json \
 ```
 
 原始JSON放入 `raw/redfox/`，标准化作品写入 `works.jsonl`，来源写入 `source_manifest.jsonl`。不要覆盖原始响应。
+
+MCP或SDK通用调用示例：
+
+```bash
+python3 scripts/redfox_mcp.py call --tool douyin_search_ai_articles \
+  --args '{"keyword":"Codex"}' --execute --out raw/redfox/mcp.json
+python3 scripts/redfox_catalog.py call --operation sdk.douyin.search_ai_articles \
+  --args '{"keyword":"Codex"}' --execute --out raw/redfox/sdk.json
+python3 scripts/normalize.py --input raw/redfox/mcp.json --kind work \
+  --platform douyin --out works.jsonl
+```
 
 关键词搜索会混入只碰巧包含单个词的内容。配置 `required_any_groups`，要求作品在每组中至少命中一个词；完整采集保存为 `works_collected.jsonl`，过滤后的研究样本保存为 `works.jsonl`，排除理由保存为 `relevance_exclusions.jsonl`。不得删除排除样本来伪装命中率。
 
@@ -111,10 +133,15 @@ python3 scripts/validate_output.py research-output/<task>
 ## 资源
 
 - RedFox接入：`references/redfox.md`
+- 完整能力验收：`references/research-capabilities.md`
 - 输出字段：`references/output-contract.md`
 - 证据与安全：`references/evidence-and-safety.md`
 - 示例任务：`assets/example-task.json`
 - 数据采集：`scripts/redfox_collect.py`
+- MCP工具发现与调用：`scripts/redfox_mcp.py`
+- SDK能力发现与调用：`scripts/redfox_catalog.py`
+- 请求费用估算：`scripts/estimate_cost.py`
+- 跨平台字段统一：`scripts/normalize.py`
 - 相关性过滤：`scripts/filter_relevance.py`
 - 密钥配置：`scripts/configure_key.py`
 - 候选排序：`scripts/rank_topics.py`

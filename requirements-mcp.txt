@@ -1,0 +1,2 @@
+# Optional launcher for the official RedFox MCP bridge.
+uv>=0.12,<1

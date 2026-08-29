@@ -24,6 +24,12 @@
 pip install -r requirements.txt
 ```
 
+需要独立使用官方RedFox MCP桥时，再安装可选启动器：
+
+```bash
+pip install -r requirements-mcp.txt
+```
+
 将 `skills/yuntu-media-research/` 复制或链接到支持 `SKILL.md` 的Agent技能目录。不同客户端的技能目录与启用方式可能不同，以客户端当前文档为准。
 
 ## 配置RedFox
@@ -52,6 +58,10 @@ $env:REDFOX_API_KEY="YOUR_API_KEY"
 ## 第一次运行
 
 ```bash
+python3 skills/yuntu-media-research/scripts/redfox_mcp.py status
+python3 skills/yuntu-media-research/scripts/redfox_catalog.py status
+python3 skills/yuntu-media-research/scripts/redfox_catalog.py discover \
+  --platform douyin --capability search
 python3 skills/yuntu-media-research/scripts/redfox_collect.py status
 python3 skills/yuntu-media-research/scripts/redfox_collect.py plan \
   --config skills/yuntu-media-research/assets/example-task.json
@@ -62,6 +72,8 @@ python3 skills/yuntu-media-research/scripts/redfox_collect.py collect \
 ```
 
 `plan`不会产生付费调用；只有带 `--execute` 的 `collect` 才会请求RedFox。
+
+当前v1.0采用MCP/SDK双通道：MCP适合宿主Agent原生工具调用，SDK提供更广的平台操作目录。调用前使用`estimate_cost.py`估价，调用后用`normalize.py`统一作品、账号和评论字段。无法从官方说明识别价格时会保留`unknown`，不会猜测。
 
 关键词搜索可能混入同名或偶然命中内容。`required_any_groups`要求每组至少命中一个词，原始采集与过滤结果会同时保留，便于审计。
 
@@ -85,7 +97,7 @@ python3 -m unittest discover -s tests -v
 
 ## 平台与状态
 
-Skill本体与Python脚本按macOS和Windows双平台设计，但浏览器控制取决于宿主Agent。`v1.0.0`正在重构：目前只验收了macOS上的RedFox抖音采集层，完整选题到初稿链路与Windows真机仍未验收，因此暂不宣称正式可用或已带来增长结果。
+Skill本体与Python脚本按macOS和Windows双平台设计，但浏览器控制取决于宿主Agent。`v1.0.0`正在重构：目前已在macOS验收RedFox MCP工具发现、MCP实调用、SDK动态目录、抖音采集、费用模型和统一字段；M2研究层、M3选题层、M4初稿层与Windows真机仍未完成，因此暂不宣称正式可用或已带来增长结果。
 
 ## 设计原则
 
